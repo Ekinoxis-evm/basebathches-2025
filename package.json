@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
+    "@tanstack/react-query": "^5",
+    "ethers": "^5.7.2",
     "next": "14.2.15",
     "react": "^18",
     "react-dom": "^18",
-    "@tanstack/react-query": "^5",
     "viem": "^2.27.2",
     "wagmi": "^2.14.11"
   },
@@ -21,10 +22,10 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5",
-    "eslint": "^8"
+    "typescript": "^5"
   }
 }
