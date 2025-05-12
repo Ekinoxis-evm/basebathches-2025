@@ -1,0 +1,77 @@
+{
+    "address": "0xf86bf3F8246b3CF700F36Eda54D63CDb7FA95a0C",
+    "abi": [
+      {
+        "inputs": [
+          { "internalType": "address", "name": "_buyer", "type": "address" },
+          { "internalType": "address", "name": "_nftAddress", "type": "address" },
+          { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
+          { "internalType": "address", "name": "_paymentToken", "type": "address" },
+          { "internalType": "uint256", "name": "_price", "type": "uint256" }
+        ],
+        "name": "createEscrow",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "depositNFT",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "depositPayment",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "cancelEscrow",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          { "indexed": true, "internalType": "uint256", "name": "escrowId", "type": "uint256" },
+          { "indexed": true, "internalType": "address", "name": "seller", "type": "address" },
+          { "indexed": true, "internalType": "address", "name": "nft", "type": "address" },
+          { "indexed": false, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+          { "indexed": false, "internalType": "uint256", "name": "price", "type": "uint256" },
+          { "indexed": false, "internalType": "address", "name": "paymentToken", "type": "address" }
+        ],
+        "name": "EscrowCreated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [{ "indexed": true, "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "NFTDeposited",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [{ "indexed": true, "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "PaymentDeposited",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [{ "indexed": true, "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "EscrowCompleted",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [{ "indexed": true, "internalType": "uint256", "name": "escrowId", "type": "uint256" }],
+        "name": "EscrowCancelled",
+        "type": "event"
+      }
+    ]
+  }
+  
