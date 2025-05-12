@@ -26,7 +26,7 @@ export default function TradingPage() {
           {
             id: '1',
             title: 'Toyota Corolla 2022',
-            image: 'https://images.unsplash.com/photo-1630990599502-1efe60e5cc8c',
+            image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             price: '1.5',
             seller: '0x1234...5678',
             tokenId: '#1',

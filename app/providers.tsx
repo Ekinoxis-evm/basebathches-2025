@@ -1,21 +1,37 @@
+// 
+
+// app/providers.tsx
+
+// app/providers.tsx
+
 'use client';
 
-import { base } from 'wagmi/chains';
+import { baseSepolia } from 'wagmi/chains';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
-import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WagmiProvider } from 'wagmi';
+import { config as wagmiConfig } from './config/wagmi'; // ✅ CORRECT
 
-export function Providers(props: { children: ReactNode }) {
+// @notice Initializes QueryClient for React Query
+const queryClient = new QueryClient();
+
+// @notice Provides Wagmi and OnchainKit context for wallet connectivity on Base Sepolia
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <OnchainKitProvider
-      apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-          chain={base}
-          config={{ appearance: { 
-            mode: 'auto',
-        }
-      }}
-    >
-      {props.children}
-    </OnchainKitProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <OnchainKitProvider
+          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
+          chain={baseSepolia}
+          config={{
+            appearance: {
+              mode: 'auto',
+            },
+          }}
+        >
+          {children}
+        </OnchainKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
-

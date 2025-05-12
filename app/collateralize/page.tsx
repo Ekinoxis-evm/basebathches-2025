@@ -12,7 +12,7 @@ const mockCars = [
     id: '1',
     title: 'Toyota Corolla 2022',
     type: 'Sedan',
-    imageUrl: 'https://images.unsplash.com/photo-1636750805104-ab38324d0a22?q=80&w=1470&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     tokenId: '123456',
     price: 15000,
     status: 'owned'
@@ -21,7 +21,7 @@ const mockCars = [
     id: '2',
     title: 'Honda CR-V 2021',
     type: 'SUV',
-    imageUrl: 'https://images.unsplash.com/photo-1675606879224-a347fd80aacb?q=80&w=1470&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1704246125646-cfdf0cb6d2b8?q=80&w=2565&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     tokenId: '789012',
     price: 22500,
     status: 'owned'

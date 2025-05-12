@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-onchain`]().
-
 
 ## Getting Started
 
@@ -32,13 +30,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-
 ## Learn More
 
 To learn more about OnchainKit, see our [documentation](https://onchainkit.xyz/getting-started).
 
 To learn more about Next.js, see the [Next.js documentation](https://nextjs.org/docs).
-=======
-# basebathches-2025
-We are looking to build the next p2p market for car ownerships.
->>>>>>> 4d3435c74a71c184e58431e0a052db08d6bcf7ff

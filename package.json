@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
+
     "@tanstack/react-query": "^5",
     "axios": "^1.9.0",
     "ethers": "^6.14.0",
@@ -18,6 +19,16 @@
     "react-dom": "^18",
     "viem": "^2.27.2",
     "wagmi": "^2.14.11"
+
+    "@reown/appkit": "^1.7.4",
+    "@reown/appkit-adapter-wagmi": "^1.7.4",
+    "@tanstack/react-query": "^5.75.7",
+    "next": "14.2.15",
+    "react": "^18",
+    "react-dom": "^18",
+    "viem": "^2.29.2",
+    "wagmi": "^2.15.2"
+
   },
   "devDependencies": {
     "@types/node": "^20",
