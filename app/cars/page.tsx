@@ -5,11 +5,23 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image';
+
+// Define a proper interface for car objects
+interface Car {
+  id: string;
+  title: string;
+  image: string;
+  status: string;
+  tokenId: string;
+  placa: string;
+  price?: string;
+}
 
 export default function CarsPage() {
   const router = useRouter();
   const { isConnected } = useAccount();
-  const [cars, setCars] = useState<any[]>([]);
+  const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Fetch user's cars
@@ -23,7 +35,7 @@ export default function CarsPage() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Mock car data
-        const mockCars = [
+        const mockCars: Car[] = [
           {
             id: '1',
             title: 'Toyota Corolla 2022',
@@ -92,7 +104,7 @@ export default function CarsPage() {
         </div>
       ) : cars.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-lg text-gray-600 dark:text-gray-400 mb-4">You don't have any cars yet</h3>
+          <h3 className="text-lg text-gray-600 dark:text-gray-400 mb-4">You don&apos;t have any cars yet</h3>
           <p className="text-gray-500 dark:text-gray-500 mb-6">
             Tokenize your car to get started with CarP2P.
           </p>
@@ -111,11 +123,13 @@ export default function CarsPage() {
               className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => handleCardClick(car.id)}
             >
-              <div className="relative">
-                <img
+              <div className="relative h-48 w-full">
+                <Image
                   src={car.image}
                   alt={car.title}
-                  className="w-full h-48 object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-semibold">
                   {car.status}
@@ -150,4 +164,4 @@ export default function CarsPage() {
       )}
     </div>
   );
-} 
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 
 export default function Home() {
   return (
@@ -29,7 +29,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Tokenize</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Convert your vehicle into a digital asset. Add details, upload photos, and create an NFT 
-            representing your car's ownership.
+            representing your cars ownership.
           </p>
           <Link href="/cars" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
             Get Started →

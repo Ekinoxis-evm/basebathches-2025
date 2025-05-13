@@ -1,5 +1,6 @@
   'use client';
 
+
   import { useState, useEffect } from 'react';
   import { useAccount } from 'wagmi';
   import { useRouter } from 'next/navigation';
@@ -169,6 +170,259 @@
         });
       }
     };
+=======
+import { useState, useEffect } from 'react';
+import { useAccount } from 'wagmi';
+//import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+
+// Define types for formData
+type Propietario = {
+  nombreCompleto: string;
+  tipoDocumento: string;
+  numeroDocumento: string;
+};
+
+type Vehiculo = {
+  placa: string;
+  fechaMatriculaInicial: string;
+  marca: string;
+  linea: string;
+  modelo: string;
+  cilindraje: string;
+  color: string;
+  servicio: string;
+  claseVehiculo: string;
+  tipoCarroceria: string;
+  combustible: string;
+  capacidad: string;
+  numeroMotor: string;
+  vin: string;
+  numeroSerie: string;
+  numeroChasis: string;
+  blindaje: string;
+  declaracionImportacion: string;
+  fechaImportacion: string;
+};
+
+type Ubicacion = {
+  estado: string;
+  kilometraje: string;
+  contactoCelular: string;
+  departamento: string;
+  ciudad: string;
+};
+
+type Soat = {
+  entidad: string;
+  numeroPoliza: string;
+  fechaExpedicion: string;
+  fechaInicioVigencia: string;
+  vigente: boolean;
+};
+
+type TecnicoMecanica = {
+  cda: string;
+  numeroCertificado: string;
+  fechaExpedicion: string;
+  fechaVigencia: string;
+  vigente: boolean;
+};
+
+type Peritaje = {
+  tienePenitaje: boolean;
+  entidadEmisora: string;
+  archivo: File | null;
+};
+
+type Seguro = {
+  entidadAseguradora: string;
+  numeroPoliza: string;
+  fechaExpedicion: string;
+  fechaInicioVigencia: string;
+  vigente: boolean;
+};
+
+type FormData = {
+  propietario: Propietario;
+  vehiculo: Vehiculo;
+  ubicacion: Ubicacion;
+  soat: Soat;
+  tecnicoMecanica: TecnicoMecanica;
+  peritaje: Peritaje;
+  seguro: Seguro;
+  aceptaTerminos: boolean;
+};
+
+export default function TokenizePage() {
+  const { isConnected } = useAccount();
+  //const router = useRouter();
+
+  // Mock user profile data (in a real app, this would be fetched from a database)
+  const [userProfile/*, setUserProfile*/] = useState({
+    fullName: 'William Martinez',
+    identificationType: 'Cedula de ciudadania',
+    identificationNumber: '1234567890'
+  });
+  
+  // Step tracking for multi-step form
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 7;
+  
+  // Form data state
+  const [formData, setFormData] = useState<FormData>({
+    propietario: {
+      nombreCompleto: '',
+      tipoDocumento: '',
+      numeroDocumento: '',
+    },
+    vehiculo: {
+      placa: '',
+      fechaMatriculaInicial: '',
+      marca: '',
+      linea: '',
+      modelo: '',
+      cilindraje: '',
+      color: '',
+      servicio: '',
+      claseVehiculo: '',
+      tipoCarroceria: '',
+      combustible: '',
+      capacidad: '',
+      numeroMotor: '',
+      vin: '',
+      numeroSerie: '',
+      numeroChasis: '',
+      blindaje: '',
+      declaracionImportacion: '',
+      fechaImportacion: '',
+    },
+    ubicacion: {
+      estado: '',
+      kilometraje: '',
+      contactoCelular: '',
+      departamento: '',
+      ciudad: '',
+    },
+    soat: {
+      entidad: '',
+      numeroPoliza: '',
+      fechaExpedicion: '',
+      fechaInicioVigencia: '',
+      vigente: false,
+    },
+    tecnicoMecanica: {
+      cda: '',
+      numeroCertificado: '',
+      fechaExpedicion: '',
+      fechaVigencia: '',
+      vigente: false,
+    },
+    peritaje: {
+      tienePenitaje: false,
+      entidadEmisora: '',
+      archivo: null,
+    },
+    seguro: {
+      entidadAseguradora: '',
+      numeroPoliza: '',
+      fechaExpedicion: '',
+      fechaInicioVigencia: '',
+      vigente: false,
+    },
+    aceptaTerminos: false,
+  });
+
+  // Selection options for various fields
+  const tiposDocumento = ['Cedula de ciudadania', 'Cedula extranjeria', 'NIT'];
+  const tiposServicio = ['Particular', 'Público'];
+  const clasesVehiculo = ['Carro', 'Motocicleta', 'Camioneta'];
+  const tiposCarroceria = ['SIN CARROCERIA', 'CON CARROCERIA'];
+  const tiposCombustible = ['Gasolina', 'Diesel', 'Eléctrico', 'Híbrido', 'Gas'];
+  const opcionesSiNo = ['Si', 'No'];
+  const estadosVehiculo = ['Nuevo', 'Usado'];
+  
+  // Colombian departments and cities
+  const departamentos = [
+    'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.', 'Bolívar', 
+    'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 
+    'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 
+    'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 
+    'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima', 
+    'Valle del Cauca', 'Vaupés', 'Vichada'
+  ];
+  
+  // Mock car brands by type
+  const marcasPorTipo = {
+    'Carro': ['Toyota', 'Chevrolet', 'Mazda', 'Renault', 'Ford', 'Nissan', 'Kia', 'Hyundai'],
+    'Motocicleta': ['Yamaha', 'Honda', 'Suzuki', 'Kawasaki', 'Bajaj', 'KTM', 'Royal Enfield'],
+    'Camioneta': ['Toyota', 'Ford', 'Chevrolet', 'Nissan', 'Mitsubishi', 'Jeep', 'Kia', 'Hyundai']
+  };
+  
+  // State for errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
+  
+  // Effect to populate owner information
+  useEffect(() => {
+    // Pre-fill owner information from user profile
+    setFormData(prev => ({
+      ...prev,
+      propietario: {
+        nombreCompleto: userProfile.fullName,
+        tipoDocumento: userProfile.identificationType,
+        numeroDocumento: userProfile.identificationNumber
+      }
+    }));
+  }, [userProfile]);
+  
+// Define a more specific type for the sections of FormData
+type FormDataSection = {
+  [key: string]: string | boolean | File | null;
+};
+
+// Handler for form field changes
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, section: string) => {
+  const { name, value, type, checked } = e.target as HTMLInputElement;
+  
+  setFormData(prevData => ({
+    ...prevData,
+    [section]: {
+      ...prevData[section as keyof FormData] as FormDataSection,
+      [name]: type === 'checkbox' ? checked : value
+    }
+  }));
+  
+  // Clear error for this field if it exists
+  if (errors[`${section}.${name}`]) {
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[`${section}.${name}`];
+      return newErrors;
+    });
+  }
+};
+
+// Handle file uploads
+const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, section: keyof FormData, field: string) => {
+  if (e.target.files && e.target.files.length > 0) {
+    const file = e.target.files[0];
+    setFormData(prevData => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section as keyof FormData] as FormDataSection,
+        [field]: file,
+      },
+    }));
+  }
+};
+  
+  // Helper function to check if date is valid
+  const isValidDate = (dateString: string) => {
+    if (!dateString) return false;
+    const regex = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!regex.test(dateString)) return false;
     
     // Handle file uploads
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, section: string, field: string) => {
@@ -1308,5 +1562,6 @@
           </div>
         </div>
       </div>
-    );
-  } 
+    </div>
+  );
+}

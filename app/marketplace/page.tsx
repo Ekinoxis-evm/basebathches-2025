@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image'; // Import the Image component
+
 
 // Mock marketplace data
 const mockListings = [
@@ -118,8 +120,18 @@ export default function MarketplacePage() {
           
           <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
             <div className="flex items-center">
-              <div className="w-20 h-20 mr-4 overflow-hidden rounded">
-                <img src={purchasedListing?.imageUrl} alt={purchasedListing?.title} className="w-full h-full object-cover" />
+            <div className="w-20 h-20 mr-4 overflow-hidden rounded relative">
+                {purchasedListing?.imageUrl ? (
+                  <Image
+                    src={purchasedListing.imageUrl}
+                    alt={purchasedListing?.title || "Listing thumbnail"}
+                    fill={true}
+                    className="object-cover"
+                    sizes="80px" // 20*4=80px (since Tailwind uses rem units)
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200"></div> // Placeholder if no image
+                )}
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white">{purchasedListing?.title}</h3>
@@ -208,10 +220,13 @@ export default function MarketplacePage() {
           {filteredListings.map((listing) => (
             <div key={listing.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               <div className="h-48 w-full overflow-hidden">
-                <img 
+                <Image 
                   src={listing.imageUrl} 
                   alt={listing.title} 
                   className="w-full h-full object-cover"
+                  width={500} // Set appropriate width
+                  height={200} // Set appropriate height
+                  layout="responsive" // Maintain aspect ratio
                 />
               </div>
               <div className="p-5">
@@ -253,4 +268,4 @@ export default function MarketplacePage() {
       )}
     </div>
   );
-} 
+}
