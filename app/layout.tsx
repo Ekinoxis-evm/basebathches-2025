@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'CarP2P - Tokenize and Trade Vehicles',
   description: 'Tokenize your vehicles, trade them as NFTs, and use them as collateral for loans',
   icons: {
-    icon: '../public/favicon.ico',
+    icon: '/favicon.png',
   },
 };
 

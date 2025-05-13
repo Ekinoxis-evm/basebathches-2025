@@ -5,11 +5,28 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image';
+
+type Car = {
+  id: string;
+  title: string;
+  image: string;
+  price: string;
+  seller?: string; // Allow undefined
+  tokenId: string;
+  yearModel: string;
+  brand: string;
+  model: string;
+  kilometers: string;
+  location: string;
+  isMine: boolean;
+  purchasedBy?: string; // Opcional si no siempre está presente
+};
 
 export default function TradingPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
-  const [cars, setCars] = useState<any[]>([]);
+  const [cars, setCars] = useState<Car[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'my-listings', 'purchased'
   
@@ -42,7 +59,7 @@ export default function TradingPage() {
             title: 'Chevrolet Camaro 2020',
             image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
             price: '2.8',
-            seller: address, // Current user's address
+            seller: address || '', // Ensure seller is always a string
             tokenId: '#2',
             yearModel: '2020',
             brand: 'Chevrolet',
@@ -84,7 +101,7 @@ export default function TradingPage() {
             title: 'Volkswagen Golf 2021',
             image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf',
             price: '1.3',
-            seller: '0xabcd...efgh',
+            seller: '0xabcd...efgh', // Ensure this is always a string
             tokenId: '#5',
             yearModel: '2021',
             brand: 'Volkswagen',
@@ -98,7 +115,7 @@ export default function TradingPage() {
             title: 'Honda Civic 2023',
             image: 'https://images.unsplash.com/photo-1607853554439-0069ec0f29b6',
             price: '2.1',
-            seller: '0x7890...1234',
+            seller: '0x7890...1234', // Ensure this is always a string
             tokenId: '#6',
             yearModel: '2023',
             brand: 'Honda',
@@ -245,7 +262,7 @@ export default function TradingPage() {
           <h3 className="text-lg text-gray-600 dark:text-gray-400">No vehicles found</h3>
           {activeTab === 'my-listings' && (
             <p className="mt-2 text-gray-500 dark:text-gray-500">
-              You don't have any cars listed for sale. Go to your cars, view details, and click "Sell" to list one.
+              You dont have any cars listed for sale. Go to your cars, view details, and click Sell to list one.
             </p>
           )}
         </div>
@@ -254,11 +271,15 @@ export default function TradingPage() {
           {filteredCars.map(car => (
             <div key={car.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               <div className="relative">
-                <img
-                  src={car.image}
-                  alt={car.title}
-                  className="w-full h-48 object-cover"
-                />
+              <div className="relative w-full h-48">
+                <Image
+                    src={car.image}
+                    alt={car.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
                 <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-semibold">
                   {car.price} ETH
                 </div>
@@ -316,4 +337,4 @@ export default function TradingPage() {
       )}
     </div>
   );
-} 
+}

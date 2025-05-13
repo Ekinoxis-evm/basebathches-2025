@@ -5,11 +5,34 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image';
+
+
+// Define a Car type that represents the structure of a car object
+interface Car {
+  purchasedBy: string | undefined;
+  id: string;
+  placa: string;
+  marca: string;
+  modelo: string;
+  linea: string;
+  color: string;
+  tokenId?: string; // Optional if not all cars have tokenId
+  tokenized?: boolean;
+  imageUrl?: string;
+  isMine?: boolean; // Indicates if the car belongs to the current user
+  brand: string; // Add the brand property
+  price: string; // Add the price property
+  yearModel: string; // Add the yearModel property
+  kilometers: string; // Add the kilometers property
+  location: string; // Add the location property
+  // Add any other properties that your car objects have
+}
 
 export default function TradingPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
-  const [cars, setCars] = useState<any[]>([]);
+  const [cars, setCars] = useState<Car[]>([]); // Updated type
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'my-listings', 'purchased'
   
@@ -25,59 +48,83 @@ export default function TradingPage() {
         const mockCars = [
           {
             id: '1',
-            title: 'Toyota Corolla 2022',
-            image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            placa: 'ABC123',
+            marca: 'Toyota',
+            modelo: 'Corolla',
+            linea: 'Sedan',
+            color: 'White',
+            tokenId: '#1',
+            tokenized: true,
+            imageUrl: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             price: '1.5',
             seller: '0x1234...5678',
-            tokenId: '#1',
             yearModel: '2022',
             brand: 'Toyota',
             model: 'Corolla',
             kilometers: '15,000',
             location: 'Bogotá, Colombia',
-            isMine: false
+            isMine: false,
+            purchasedBy: undefined
           },
           {
             id: '2',
-            title: 'Chevrolet Camaro 2020',
-            image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
+            placa: 'DEF456',
+            marca: 'Chevrolet',
+            modelo: 'Camaro',
+            linea: 'Coupe',
+            color: 'Red',
+            tokenId: '#2',
+            tokenized: true,
+            imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
             price: '2.8',
             seller: address, // Current user's address
-            tokenId: '#2',
             yearModel: '2020',
             brand: 'Chevrolet',
             model: 'Camaro',
             kilometers: '20,000',
             location: 'Medellín, Colombia',
-            isMine: true
+            isMine: true,
+            purchasedBy: undefined
           },
           {
             id: '3',
-            title: 'Mazda CX-5 2021',
-            image: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537',
+            placa: 'GHI789',
+            marca: 'Mazda',
+            modelo: 'CX-5',
+            linea: 'SUV',
+            color: 'Blue',
+            tokenId: '#3',
+            tokenized: true,
+            imageUrl: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537',
             price: '1.8',
             seller: '0x9876...4321',
-            tokenId: '#3',
             yearModel: '2021',
             brand: 'Mazda',
             model: 'CX-5',
             kilometers: '18,000',
             location: 'Cali, Colombia', 
-            isMine: false
+            isMine: false,
+            purchasedBy: undefined
           },
           {
             id: '4',
-            title: 'Ford Mustang 2019',
-            image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8',
+            placa: 'JKL012',
+            marca: 'Ford',
+            modelo: 'Mustang',
+            linea: 'Convertible',
+            color: 'Black',
+            tokenId: '#4',
+            tokenized: true,
+            imageUrl: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8',
             price: '2.2',
             seller: address, // Current user's address
-            tokenId: '#4',
             yearModel: '2019',
             brand: 'Ford',
             model: 'Mustang',
             kilometers: '25,000',
             location: 'Barranquilla, Colombia',
-            isMine: true
+            isMine: true,
+            purchasedBy: '0x1234...5678'
           },
         ];
         
@@ -224,7 +271,7 @@ export default function TradingPage() {
           <h3 className="text-lg text-gray-600 dark:text-gray-400">No vehicles found</h3>
           {activeTab === 'my-listings' && (
             <p className="mt-2 text-gray-500 dark:text-gray-500">
-              You don't have any cars listed for sale. Go to your cars and click "Sell" to list one.
+              You dont have any cars listed for sale. Go to your cars and click Sell to list one.
             </p>
           )}
         </div>
@@ -233,18 +280,23 @@ export default function TradingPage() {
           {filteredCars.map(car => (
             <div key={car.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               <div className="relative">
-                <img
-                  src={car.image}
-                  alt={car.title}
-                  className="w-full h-48 object-cover"
-                />
+              <div className="relative">
+                  <Image
+                    src={car.imageUrl || '/fallback-image.jpg'}
+                    alt={`${car.brand} ${car.modelo}`}
+                    width={500}  // Set appropriate width
+                    height={192} // Set appropriate height (48 * 4 = 192 based on your h-48 class)
+                    className="object-cover"  // You can still use object-cover
+                    priority={true}  // Optional: Add priority for images above the fold
+                  />
+                </div>
                 <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-semibold">
                   {car.price} ETH
                 </div>
               </div>
               
               <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{car.title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{`${car.brand} ${car.modelo}`}</h3>
                 
                 <div className="mb-4 space-y-1">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -254,7 +306,7 @@ export default function TradingPage() {
                     <span className="font-medium">Year:</span> {car.yearModel}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Model:</span> {car.brand} {car.model}
+                    <span className="font-medium">Model:</span> {car.brand} {car.modelo}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-medium">Kilometers:</span> {car.kilometers}
@@ -295,4 +347,4 @@ export default function TradingPage() {
       )}
     </div>
   );
-} 
+}

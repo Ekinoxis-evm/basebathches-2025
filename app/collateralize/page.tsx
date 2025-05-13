@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAccount } from 'wagmi';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image';
 
 // Mock car data
 const mockCars = [
@@ -35,10 +36,20 @@ const loanProviders = [
   { id: 'provider3', name: 'BlockLend', rate: '9.0%', maxLTV: '75%', term: '3-18 months' }
 ];
 
+// Componente principal
 export default function CollateralizePage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <CollateralizeContent />
+    </Suspense>
+  );
+}
+
+// Componente con toda la lógica
+function CollateralizeContent() {
   const { isConnected } = useAccount();
   const searchParams = useSearchParams();
-  const [cars, setCars] = useState(mockCars);
+  const [cars/*, setCars*/] = useState(mockCars);
   const [selectedCar, setSelectedCar] = useState<string | null>(null);
   const [loanAmount, setLoanAmount] = useState<string>('');
   const [selectedProvider, setSelectedProvider] = useState<string>('');
@@ -166,7 +177,13 @@ export default function CollateralizePage() {
               >
                 <div className="flex">
                   <div className="w-24 h-24 mr-4 overflow-hidden rounded">
-                    <img src={car.imageUrl} alt={car.title} className="w-full h-full object-cover" />
+                    <Image 
+                      src={car.imageUrl} 
+                      alt={car.title} 
+                      className="w-full h-full object-cover"
+                      width={96} // Set appropriate width (24 * 4 = 96px)
+                      height={96} // Set appropriate height (24 * 4 = 96px)
+                    />
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900 dark:text-white">{car.title}</h4>
@@ -283,4 +300,4 @@ export default function CollateralizePage() {
       </form>
     </div>
   );
-} 
+}

@@ -5,13 +5,46 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import Image from 'next/image';
+
+// ✅ Improved types with specific properties instead of any
+interface Car {
+  id: string;
+  image: string;
+  title: string;
+  tokenId: string;
+  placa: string;
+  fechaMatriculaInicial: string;
+  marca: string;
+  linea: string;
+  modelo: string;
+  cilindraje: string;
+  color: string;
+  servicio: string;
+  claseVehiculo: string;
+  tipoCarroceria: string;
+  combustible: string;
+  capacidad: string;
+  numeroMotor: string;
+  vin: string;
+  numeroSerie: string;
+  numeroChasis: string;
+  blindaje: string;
+  declaracionImportacion: string;
+  propietario: string;
+  identificacion: string;
+  status: string;
+  listed: boolean;
+  price: number | null;
+}
 
 export default function CarDetailsPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
   const { isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const [carDetails, setCarDetails] = useState<any>(null);
+  const [carDetails, setCarDetails] = useState<Car | null>(null);
   const [showSellModal, setShowSellModal] = useState(false);
   const [sellPrice, setSellPrice] = useState('');
   
@@ -84,11 +117,13 @@ export default function CarDetailsPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Update local state
-      setCarDetails({
-        ...carDetails,
-        listed: true,
-        price: sellPrice
-      });
+      if (carDetails) {
+        setCarDetails({
+          ...carDetails,
+          listed: true,
+          price: parseFloat(sellPrice)
+        });
+      }
       
       // Close modal
       setShowSellModal(false);
@@ -162,10 +197,12 @@ export default function CarDetailsPage() {
       {/* Car Header with Image */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div className="relative h-64 w-full">
-          <img 
+          <Image 
             src={carDetails.image} 
             alt={carDetails.title}
-            className="w-full h-full object-cover"
+            layout="fill"
+            objectFit="cover"
+            priority
           />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
             <h2 className="text-2xl font-bold text-white">{carDetails.title}</h2>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccount } from 'wagmi';
-import { EthBalance, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
+import { EthBalance, Avatar, /*Name,*/ Address } from '@coinbase/onchainkit/identity';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { useState, useEffect } from 'react';
 import { createPublicClient, http, formatUnits } from 'viem';
