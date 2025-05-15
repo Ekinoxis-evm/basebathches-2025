@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /**
  * @title VehicleNFT
  * @dev Contract for creating and managing vehicle NFTs with public minting capability
+ * and owner-only metadata updates
  */
 contract VehicleNFT_V2 is ERC721URIStorage, Ownable {
     uint256 private _tokenIdCounter;
@@ -18,6 +19,7 @@ contract VehicleNFT_V2 is ERC721URIStorage, Ownable {
     event VehicleNFTMinted(address indexed to, uint256 tokenId, string tokenURI);
     event MinterAuthorized(address indexed minter);
     event MinterRevoked(address indexed minter);
+    event TokenURIUpdated(uint256 indexed tokenId, string newTokenURI);
 
     constructor() ERC721("VehicleNFT", "VHCL") Ownable(msg.sender) {}
     
@@ -92,6 +94,34 @@ contract VehicleNFT_V2 is ERC721URIStorage, Ownable {
 
         emit VehicleNFTMinted(msg.sender, newTokenId, tokenURI);
         return newTokenId;
+    }
+    
+    /**
+     * @dev Allows token owner to update token metadata
+     * @param tokenId ID of the token to update
+     * @param newTokenURI New URI for the token metadata
+     */
+    function updateTokenURI(uint256 tokenId, string memory newTokenURI) external {
+        require(_exists(tokenId), "Token does not exist");
+        require(ownerOf(tokenId) == msg.sender, "Only token owner can update metadata");
+        require(bytes(newTokenURI).length > 0, "Token URI is required");
+        
+        _setTokenURI(tokenId, newTokenURI);
+        
+        emit TokenURIUpdated(tokenId, newTokenURI);
+    }
+    
+    /**
+     * @dev Internal function to check if a token exists
+     * @param tokenId ID of the token to check
+     * @return bool Whether the token exists
+     */
+    function _exists(uint256 tokenId) internal view returns (bool) {
+        try this.ownerOf(tokenId) returns (address) {
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     /**
