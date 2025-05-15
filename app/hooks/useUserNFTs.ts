@@ -3,6 +3,7 @@ import { useAccount, useReadContract } from 'wagmi';
 import { readContract } from '@wagmi/core';
 import { baseSepolia } from 'wagmi/chains';
 import { config } from '@/app/config/wagmi';
+import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
 
 // Define interfaces
 interface NFT {
@@ -16,10 +17,13 @@ interface NFT {
 }
 
 // For debugging - toggle to true to see mock data
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 // Contract Address from VehicleNFT_V2
-const CONTRACT_ADDRESS = '0x1C4cc777E309c6403Ce82e2332887470773A8a74';
+const CONTRACT_ADDRESS = CONTRACT_ADDRESSES.VehicleNFT_V2;
+
+// Log contract address for debugging
+console.log('Using contract address:', CONTRACT_ADDRESS);
 
 // Simplified ABI with only the functions we need
 const NFT_ABI = [
@@ -110,19 +114,30 @@ export function useUserNFTs() {
         if (totalSupply) {
           console.log('Total minted NFTs:', totalSupply.toString());
         } else {
-          console.log('Total supply not available yet');
+          console.log('Total supply not available yet, using default value');
         }
         
         // Create batch requests to check ownership for all token IDs
-        const totalMinted = totalSupply ? Number(totalSupply) : 10; // Check up to 10 tokens if totalSupply is not available
-        console.log(`Checking ownership for tokens 1 to ${totalMinted}`);
+        const totalMinted = totalSupply ? Number(totalSupply) : 50; // Check up to 50 tokens if totalSupply is not available
+        console.log(`Checking ownership for tokens 0 to ${totalMinted}`);
         
         // Array to collect NFTs
         const nftsFound: NFT[] = [];
         
+        // Alternative contract address formats for RPC calls
+        const contractAddressFormats = [
+          CONTRACT_ADDRESS,
+          CONTRACT_ADDRESS.toLowerCase(),
+          CONTRACT_ADDRESS.toString()
+        ];
+        
+        console.log('Contract address formats:', contractAddressFormats);
+        
         // We'll check each token ID individually to avoid the complexity of batch calls
-        for (let tokenId = 1; tokenId <= totalMinted; tokenId++) {
+        // Start from 0 as some contracts start counting from 0
+        for (let tokenId = 0; tokenId <= totalMinted; tokenId++) {
           try {
+            console.log(`Checking token ${tokenId}...`);
             // Check if the current user owns this token - try multiple methods
             let ownerAddress = null;
             
@@ -149,7 +164,11 @@ export function useUserNFTs() {
               }
             }
             
-            if (ownerAddress && ownerAddress.toLowerCase() === address.toLowerCase()) {
+            // Compare addresses case-insensitively
+            const ownerMatches = ownerAddress && address && 
+              ownerAddress.toLowerCase() === address.toLowerCase();
+              
+            if (ownerMatches) {
               console.log(`Token ${tokenId} is owned by the current wallet`);
               
               // Fetch token URI - try multiple methods
@@ -183,7 +202,14 @@ export function useUserNFTs() {
                 console.log(`Processing metadata for token ${tokenId}`);
                 const nft = await processNFTMetadata(tokenId, uri);
                 nftsFound.push(nft);
+                console.log(`Added NFT to collection:`, nft);
+              } else {
+                console.warn(`No URI found for token ${tokenId} despite owner match`);
               }
+            } else if (ownerAddress) {
+              console.log(`Token ${tokenId} is owned by ${ownerAddress}, not the current wallet ${address}`);
+            } else {
+              console.log(`Could not determine owner for token ${tokenId}`);
             }
           } catch (err) {
             console.error(`Error checking token ${tokenId}:`, err);
@@ -191,7 +217,7 @@ export function useUserNFTs() {
           }
         }
         
-        console.log(`Found ${nftsFound.length} NFTs owned by wallet ${address}`);
+        console.log(`Found ${nftsFound.length} NFTs owned by wallet ${address}`, nftsFound);
         setUserNFTs(nftsFound);
       } catch (error) {
         console.error('Error fetching user NFTs:', error);
@@ -207,15 +233,27 @@ export function useUserNFTs() {
   // Helper function to fetch owner of a token
   async function fetchOwnerOf(tokenId: number): Promise<string | null> {
     try {
-      // Try both Base Sepolia RPC formats
+      // Try multiple Base Sepolia RPC formats and endpoints
       const endpoints = [
         `https://sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/ownerOf?args=["${tokenId}"]`,
-        `https://api.sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/ownerOf?args=[${tokenId}]`
+        `https://api.sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/ownerOf?args=[${tokenId}]`,
+        `https://base-sepolia.blockpi.network/v1/rpc/public/eth_call`,
+        `https://sepolia.base.org`
       ];
       
       for (const endpoint of endpoints) {
         try {
-          const result = await fetch(endpoint);
+          if (endpoint.includes('eth_call') || !endpoint.includes('ownerOf')) {
+            // Use ethers style call for non-specific endpoints
+            continue; // Skip for now, focus on direct endpoints
+          }
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          const result = await fetch(endpoint, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
           const data = await result.json();
           if (data.result) {
             return data.result;
@@ -235,15 +273,27 @@ export function useUserNFTs() {
   // Helper function to fetch token URI
   async function fetchTokenURI(tokenId: number): Promise<string | null> {
     try {
-      // Try both Base Sepolia RPC formats
+      // Try multiple Base Sepolia RPC formats and endpoints
       const endpoints = [
         `https://sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/tokenURI?args=["${tokenId}"]`,
-        `https://api.sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/tokenURI?args=[${tokenId}]`
+        `https://api.sepolia.base.org/v1/address/${CONTRACT_ADDRESS}/tokenURI?args=[${tokenId}]`,
+        `https://base-sepolia.blockpi.network/v1/rpc/public/eth_call`,
+        `https://sepolia.base.org`
       ];
       
       for (const endpoint of endpoints) {
         try {
-          const result = await fetch(endpoint);
+          if (endpoint.includes('eth_call') || !endpoint.includes('tokenURI')) {
+            // Use ethers style call for non-specific endpoints
+            continue; // Skip for now, focus on direct endpoints
+          }
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          const result = await fetch(endpoint, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
           const data = await result.json();
           if (data.result) {
             return data.result;
@@ -270,12 +320,64 @@ export function useUserNFTs() {
         httpUri = uri.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/');
       }
       
+      // Alternative IPFS gateways if the primary one fails
+      const ipfsGateways = [
+        'https://gateway.pinata.cloud/ipfs/',
+        'https://ipfs.io/ipfs/',
+        'https://gateway.ipfs.io/ipfs/',
+        'https://cloudflare-ipfs.com/ipfs/',
+        'https://dweb.link/ipfs/'
+      ];
+      
       console.log(`Fetching metadata from: ${httpUri}`);
       
-      // Fetch metadata
-      const response = await fetch(httpUri);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch metadata: ${response.status} ${response.statusText}`);
+      // Fetch metadata with a timeout
+      let response = null;
+      let fetchError = null;
+      
+      // Try the primary URI first
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        
+        response = await fetch(httpUri, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch metadata: ${response.status} ${response.statusText}`);
+        }
+      } catch (err) {
+        console.warn(`Failed to fetch from primary gateway: ${err}`);
+        fetchError = err;
+        
+        // If primary gateway fails and this is an IPFS URI, try alternative gateways
+        if (uri.startsWith('ipfs://')) {
+          const cid = uri.replace('ipfs://', '');
+          
+          for (const gateway of ipfsGateways) {
+            if (response && response.ok) break;
+            
+            try {
+              console.log(`Trying alternative gateway: ${gateway}${cid}`);
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000);
+              
+              response = await fetch(`${gateway}${cid}`, { signal: controller.signal });
+              clearTimeout(timeoutId);
+              
+              if (response.ok) {
+                console.log(`Successfully fetched from ${gateway}`);
+                break;
+              }
+            } catch (err) {
+              console.warn(`Failed gateway ${gateway}: ${err}`);
+            }
+          }
+        }
+      }
+      
+      if (!response || !response.ok) {
+        throw new Error(`Failed to fetch metadata from all sources: ${fetchError}`);
       }
       
       const metadata = await response.json();
@@ -284,12 +386,35 @@ export function useUserNFTs() {
       // Convert image IPFS URI if present
       let imageUrl = metadata.image || '';
       if (imageUrl.startsWith('ipfs://')) {
-        imageUrl = imageUrl.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/');
+        // Try multiple gateways for image too
+        for (const gateway of ipfsGateways) {
+          const imageCid = imageUrl.replace('ipfs://', '');
+          
+          try {
+            const gatewayUrl = `${gateway}${imageCid}`;
+            // Verify the image URL works
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            const imgResponse = await fetch(gatewayUrl, { 
+              method: 'HEAD',
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            
+            if (imgResponse.ok) {
+              imageUrl = gatewayUrl;
+              break;
+            }
+          } catch (err) {
+            console.warn(`Failed image gateway ${gateway}: ${err}`);
+          }
+        }
       }
       
       // For NFTs without an image, use the default
       if (!imageUrl) {
-        imageUrl = 'https://gateway.pinata.cloud/ipfs/QmZ4vLGb5KWQeqC3qJxQgjuV8GV1YBDwgdU4AJth3HVdEz';
+        imageUrl = 'https://images.unsplash.com/photo-1594502184342-2543a32f36f0?auto=format&fit=crop&q=80';
       }
       
       // Define a type for NFT attributes
@@ -314,7 +439,7 @@ export function useUserNFTs() {
         id: tokenId.toString(),
         tokenId: tokenId.toString(),
         title: `Car #${tokenId}`,
-        image: 'https://gateway.pinata.cloud/ipfs/QmZ4vLGb5KWQeqC3qJxQgjuV8GV1YBDwgdU4AJth3HVdEz',
+        image: 'https://images.unsplash.com/photo-1594502184342-2543a32f36f0?auto=format&fit=crop&q=80',
         status: 'Owned',
         placa: ''
       };
