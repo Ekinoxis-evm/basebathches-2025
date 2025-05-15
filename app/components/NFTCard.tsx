@@ -49,49 +49,48 @@ export default function NFTCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Card Header with Basic Info */}
-      <div className="bg-blue-600 text-white p-4">
-        <h3 className="text-lg font-semibold truncate">{title}</h3>
-        <div className="flex justify-between items-center mt-1">
-          <span className="bg-blue-800 px-2 py-1 rounded-full text-xs">
-            Token #{tokenId}
-          </span>
-          {placa && (
-            <span className="bg-green-800 px-2 py-1 rounded-full text-xs">
-              Plate: {placa}
-            </span>
-          )}
-        </div>
-      </div>
-      
-      {/* Optional Image - Smaller Height */}
+      {/* Main Image - Larger Prominence */}
       {displayImage && (
-        <div className="relative h-40 w-full">
+        <div className="relative h-60 w-full">
           <Image 
             src={displayImage} 
             alt={title} 
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority
           />
+          <div className="absolute top-0 right-0 p-2">
+            <span className="bg-blue-800 px-2 py-1 rounded-full text-xs text-white">
+              Token #{tokenId}
+            </span>
+          </div>
         </div>
       )}
       
-      {/* Details Section */}
-      <div className="p-4 bg-white dark:bg-gray-800 space-y-2">
+      {/* Card Header with Basic Info */}
+      <div className="bg-white dark:bg-gray-800 p-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold truncate text-gray-900 dark:text-white">{title}</h3>
+          {placa && (
+            <span className="bg-green-600 px-2 py-1 rounded-full text-xs text-white">
+              Plate: {placa}
+            </span>
+          )}
+        </div>
+        
+        {/* Description - More Prominent */}
         {description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-2">
             {description}
           </p>
         )}
         
-        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-between items-center mt-4">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             <span className="font-semibold">Contract:</span> {shortenedAddress}
           </p>
-        </div>
-        
-        <div className="flex justify-end mt-2">
+          
           <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
             View Details
           </button>

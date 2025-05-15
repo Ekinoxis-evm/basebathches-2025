@@ -75,8 +75,8 @@ export default function CarsPage() {
   const { userNFTs, isLoading } = useUserNFTs();
   const [isMounted, setIsMounted] = useState(false);
   
-  // Always use sample data for now (until the blockchain fetching is fixed)
-  const displayVehicles = SAMPLE_VEHICLES;
+  // Use real NFTs if available, otherwise show sample data
+  const displayVehicles = userNFTs && userNFTs.length > 0 ? userNFTs : SAMPLE_VEHICLES;
   
   useEffect(() => {
     setIsMounted(true);
@@ -136,6 +136,17 @@ export default function CarsPage() {
               href={`/cars/${car.tokenId}`}
             />
           ))}
+          
+          {userNFTs && userNFTs.length === 0 && !isLoading && (
+            <div className="col-span-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow text-center">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                No vehicles found in your wallet. The sample vehicles shown are for demonstration only.
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">
+                For newly minted tokens, they will appear automatically in your inventory.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

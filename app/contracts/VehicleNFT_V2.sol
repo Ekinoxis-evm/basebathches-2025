@@ -8,6 +8,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @title VehicleNFT
  * @dev Contract for creating and managing vehicle NFTs with public minting capability
  * and owner-only metadata updates
+ *
+ * IMPORTANT: When creating the metadata for these NFTs, always include:
+ * - name: The vehicle name/title 
+ * - description: A detailed description of the vehicle (will display on OpenSea)
+ * - image: The IPFS URI of the vehicle image
+ * - attributes: Including at minimum the "Placa" (license plate) trait
  */
 contract VehicleNFT_V2 is ERC721URIStorage, Ownable {
     uint256 private _tokenIdCounter;

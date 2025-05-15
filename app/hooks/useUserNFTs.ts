@@ -466,5 +466,17 @@ export function useUserNFTs() {
     }
   }
 
+  // Sort NFTs by token ID before returning
+  useEffect(() => {
+    if (userNFTs.length > 0) {
+      // Sort NFTs by token ID in ascending order
+      userNFTs.sort((a, b) => {
+        const tokenIdA = parseInt(a.tokenId);
+        const tokenIdB = parseInt(b.tokenId);
+        return tokenIdA - tokenIdB;
+      });
+    }
+  }, [userNFTs]);
+
   return { userNFTs, isLoading, error };
 } 

@@ -93,7 +93,16 @@ export async function POST(request: NextRequest) {
     
     // Ensure OpenSea standard metadata fields
     metadataObj.name = metadataObj.name || "Vehicle NFT";
-    metadataObj.description = metadataObj.description || "Tokenized vehicle on CarP2P";
+    
+    // Make sure description is always included and detailed
+    if (!metadataObj.description || metadataObj.description.trim() === '') {
+      metadataObj.description = placa 
+        ? `Tokenized vehicle with plate ${placa} on CarP2P platform` 
+        : "Tokenized vehicle on CarP2P";
+      
+      console.warn('No description provided in metadata. Using default description.');
+    }
+    
     metadataObj.external_url = `https://carp2p.com/cars/${placa || 'unknown'}`;
 
     // Add a direct link to the contract and token ID for OpenSea to properly index
@@ -112,6 +121,14 @@ export async function POST(request: NextRequest) {
       metadataObj.attributes.push({
         trait_type: 'Placa',
         value: placa
+      });
+    }
+    
+    // Add description as an attribute to ensure it appears in OpenSea
+    if (!metadataObj.attributes.some((attr: MetadataAttribute) => attr.trait_type === 'Description')) {
+      metadataObj.attributes.push({
+        trait_type: 'Description',
+        value: metadataObj.description
       });
     }
     

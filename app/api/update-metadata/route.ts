@@ -66,12 +66,33 @@ export async function POST(request: NextRequest) {
         };
       }
       
+      // Ensure description is properly set
+      if (!metadata.description || metadata.description.trim() === '') {
+        const placa = metadata.attributes?.find((attr: any) => attr.trait_type === 'Placa')?.value;
+        metadata.description = placa 
+          ? `Tokenized vehicle with plate ${placa} on CarP2P platform (Token #${data.tokenId})` 
+          : `Tokenized vehicle on CarP2P (Token #${data.tokenId})`;
+        
+        console.warn('No description found in metadata. Added default description.');
+      } else if (!metadata.description.includes(data.tokenId.toString())) {
+        // Append token ID to description if not already present
+        metadata.description = `${metadata.description} (Token #${data.tokenId})`;
+      }
+      
       // Add token ID to attributes if not already present
       if (metadata.attributes) {
         if (!metadata.attributes.some((attr: any) => attr.trait_type === 'Token ID')) {
           metadata.attributes.push({
             trait_type: 'Token ID',
             value: data.tokenId.toString()
+          });
+        }
+        
+        // Add description as an attribute to ensure it appears in OpenSea
+        if (!metadata.attributes.some((attr: any) => attr.trait_type === 'Description')) {
+          metadata.attributes.push({
+            trait_type: 'Description',
+            value: metadata.description
           });
         }
       }
