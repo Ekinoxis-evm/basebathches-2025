@@ -1,18 +1,5 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "images": {
-    "domains": [
-      "images.unsplash.com",
-      "gateway.pinata.cloud",
-      "ipfs.io",
-      "gateway.ipfs.io",
-      "cloudflare-ipfs.com",
-      "dweb.link"
-    ],
-    "formats": ["image/avif", "image/webp"]
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -49,9 +36,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "NEXT_TELEMETRY_DISABLED": "1"
-  }
+  ]
 } 
