@@ -186,8 +186,17 @@ export function useEscrow(escrowId?: string) {
         await approveNFTContract(VEHICLE_NFT_CONTRACT, ESCROW_CONTRACT);
       }
       
+      // Always use BCOP token
+      const bcop = BCOP_TOKEN;
+      
       // Convert price to wei (considering 6 decimals for BCOP)
-      const priceInWei = BigInt(parseFloat(price) * 1_000_000);
+      const priceInWei = BigInt(parseFloat(price));
+      
+      console.log("Creating escrow with the following parameters:");
+      console.log("NFT Contract:", VEHICLE_NFT_CONTRACT);
+      console.log("Token ID:", tokenId);
+      console.log("Payment Token (BCOP):", bcop);
+      console.log("Price in Wei:", priceInWei.toString());
       
       // Create the escrow
       const txHash = await writeEscrowContract({
@@ -197,7 +206,7 @@ export function useEscrow(escrowId?: string) {
         args: [
           VEHICLE_NFT_CONTRACT as `0x${string}`,
           BigInt(tokenId),
-          paymentToken as `0x${string}`,
+          bcop as `0x${string}`,
           priceInWei
         ],
         chainId: baseSepolia.id,

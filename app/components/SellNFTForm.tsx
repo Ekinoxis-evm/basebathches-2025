@@ -50,7 +50,11 @@ export function SellNFTForm({ tokenId, tokenName, tokenImage, onSuccess }: SellN
 
     try {
       // Convert price to blockchain format with proper decimals
+      // BCOP uses 6 decimals, so 1 BCOP = 1000000 units
+      const priceValue = parseFloat(price);
       const priceInWei = parseUnits(price, tokenDecimals).toString();
+      
+      console.log(`Selling NFT with token ID ${tokenId} for ${priceValue} BCOP (${priceInWei} wei)`);
       
       // Create escrow for the NFT
       const result = await createEscrow(tokenId, priceInWei);

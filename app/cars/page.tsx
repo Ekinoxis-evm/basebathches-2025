@@ -71,57 +71,23 @@ const SAMPLE_VEHICLES = [
 
 export default function CarsPage() {
   const router = useRouter();
-  const { isConnected, address } = useAccount();
-  const { userNFTs, isLoading, error } = useUserNFTs();
-  // Use client-side rendering to avoid hydration issues
+  const { isConnected } = useAccount();
+  const { userNFTs, isLoading } = useUserNFTs();
   const [isMounted, setIsMounted] = useState(false);
   
-  // Add state to toggle between real and sample data - default to sample data
-  const [useSampleData, setUseSampleData] = useState(true);
-  
-  // Log debugging info
-  useEffect(() => {
-    console.log("🚗 Cars Page Debug Info:");
-    console.log("User NFTs from hook:", userNFTs);
-    console.log("isLoading:", isLoading);
-    console.log("error:", error);
-    console.log("useSampleData:", useSampleData);
-    console.log("userNFTs length:", userNFTs.length);
-  }, [userNFTs, isLoading, error, useSampleData]);
-  
-  // Determine which vehicles to display - use sample data if user chooses to 
-  // or if there's an error and no cars are found
-  const displayVehicles = useSampleData || (error && userNFTs.length === 0) 
-    ? SAMPLE_VEHICLES 
-    : userNFTs;
+  // Always use sample data for now (until the blockchain fetching is fixed)
+  const displayVehicles = SAMPLE_VEHICLES;
   
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
-  const handleCardClick = (id: string) => {
-    router.push(`/cars/${id}`);
-  };
 
   const handleTokenize = () => {
     router.push('/cars/tokenize');
   };
   
-  // Toggle between real and sample data
-  const toggleDataSource = () => {
-    setUseSampleData(!useSampleData);
-  };
-  
-  // Show loading state during initial client-side render
   if (!isMounted) {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">My Vehicles</h1>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-xl mb-4 text-gray-700 dark:text-gray-300">Loading...</h2>
-        </div>
-      </div>
-    );
+    return null; // Avoid hydration errors
   }
   
   if (!isConnected) {
@@ -156,98 +122,21 @@ export default function CarsPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
-      ) : error ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-lg text-red-500 mb-4">Error loading vehicles</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">{error}</p>
-          <button
-            onClick={toggleDataSource}
-            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors mb-4"
-          >
-            Show Sample Vehicles
-          </button>
-          {useSampleData && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-              {SAMPLE_VEHICLES.map(car => (
-                <NFTCard
-                  key={car.id}
-                  title={car.title}
-                  tokenId={car.tokenId}
-                  description={car.description}
-                  imageUrl={car.image}
-                  placa={car.placa}
-                  contractAddress={car.contractAddress}
-                  href={`/cars/${car.tokenId}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      ) : displayVehicles.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-lg text-gray-600 dark:text-gray-400 mb-4">You don&apos;t have any tokenized vehicles yet</h3>
-          <p className="text-gray-500 dark:text-gray-500 mb-6">
-            Tokenize your first vehicle to get started with CarP2P.
-          </p>
-          <div className="flex justify-center space-x-3">
-            <button
-              onClick={handleTokenize}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-            >
-              Tokenize Your First Vehicle
-            </button>
-            <button
-              onClick={() => {
-                setUseSampleData(true);
-                console.log("Switched to sample data from empty state");
-              }}
-              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors"
-            >
-              View Sample Vehicles
-            </button>
-          </div>
-        </div>
       ) : (
-        <>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p>Click on any vehicle to view detailed information and manage it.</p>
-              </div>
-              {useSampleData && (
-                <div className="text-amber-600 text-sm flex items-center">
-                  <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium">
-                    Showing Sample Data
-                  </span>
-                  <button
-                    onClick={toggleDataSource}
-                    className="ml-3 text-blue-600 hover:text-blue-800 text-sm underline"
-                  >
-                    View Blockchain Data
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayVehicles.map(car => (
-              <NFTCard
-                key={car.id}
-                title={car.title}
-                tokenId={car.tokenId}
-                description={car.description}
-                imageUrl={car.image}
-                placa={car.placa}
-                contractAddress={car.contractAddress}
-                href={`/cars/${car.tokenId}`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayVehicles.map(car => (
+            <NFTCard
+              key={car.id}
+              title={car.title}
+              tokenId={car.tokenId}
+              description={car.description}
+              imageUrl={car.image}
+              placa={car.placa}
+              contractAddress={car.contractAddress}
+              href={`/cars/${car.tokenId}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
