@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { baseSepolia } from 'wagmi/chains';
 import Link from 'next/link';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { useVehicleNFTV2 } from '@/app/hooks/useVehicleNFTV2';
@@ -33,6 +34,9 @@ type FormData = {
 
 export default function TokenizePage() {
   const { isConnected, address } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const isCorrectNetwork = chainId === baseSepolia.id;
   
   // Check if the connected wallet is the contract owner
   const isOwner = address?.toLowerCase() === '0x3f9b734394FC1E96afe9523c69d30D227dF4ffca'.toLowerCase();
@@ -44,11 +48,14 @@ export default function TokenizePage() {
     isLoading: isMinting, 
     error: mintError, 
     transactionHash,
-    transactionUrl
+    transactionUrl,
+    isOnCorrectChain,
+    ensureCorrectChain
   } = useVehicleNFTV2();
   
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [networkSwitchInProgress, setNetworkSwitchInProgress] = useState(false);
   
   // Step tracking for two-step form
   const [currentStep, setCurrentStep] = useState(1);
@@ -197,9 +204,36 @@ export default function TokenizePage() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
+  // Function to handle network switching
+  const handleNetworkSwitch = async () => {
+    try {
+      setNetworkSwitchInProgress(true);
+      await switchChain({ chainId: baseSepolia.id });
+    } catch (error) {
+      console.error('Failed to switch network:', error);
+      
+      // Show user-friendly error
+      let errorMessage = 'No se pudo cambiar a la red Base Sepolia. Por favor, cambia la red manualmente en tu wallet.';
+      if (error instanceof Error) {
+        if (error.message.includes('rejected')) {
+          errorMessage = 'Cambio de red rechazado. Por favor, acepta el cambio de red para poder tokenizar vehículos.';
+        }
+      }
+      setUploadError(errorMessage);
+    } finally {
+      setNetworkSwitchInProgress(false);
+    }
+  };
+
   // Form submission handler
   const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if on correct network first
+    if (!isCorrectNetwork) {
+      setUploadError('Para tokenizar vehículos, debes usar la red Base Sepolia.');
+      return;
+    }
 
     // Validate all fields
     if (!validateCurrentStep()) {
@@ -429,6 +463,25 @@ export default function TokenizePage() {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Tokenizar Tu Vehículo</h1>
       </div>
+      
+      {/* Network Warning Banner */}
+      {isConnected && !isCorrectNetwork && (
+        <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 text-yellow-700 dark:text-yellow-200 px-4 py-3 rounded mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+            <div className="mb-2 sm:mb-0">
+              <p className="font-bold">Red incorrecta detectada</p>
+              <p>Para tokenizar vehículos, debes usar la red Base Sepolia.</p>
+            </div>
+            <button 
+              onClick={handleNetworkSwitch}
+              disabled={networkSwitchInProgress}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-blue-400"
+            >
+              {networkSwitchInProgress ? 'Cambiando...' : 'Cambiar a Base Sepolia'}
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Progress bar */}
       <div className="mb-8">

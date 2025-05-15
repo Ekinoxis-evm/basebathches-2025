@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
-import Link from 'next/link';
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { useVehicleNFTV2 } from '@/app/hooks/useVehicleNFTV2';
 import Image from 'next/image';
+import Link from 'next/link';
+import CarActionLayout from '@/app/components/CarActionLayout';
 
 export default function SimpleMintPage() {
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
   const { 
     smartMintVehicleNFT, 
     isContractOwner, 
@@ -113,31 +113,10 @@ export default function SimpleMintPage() {
     }
   };
   
-  // If not connected, show connect prompt
-  if (!isConnected) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Simple NFT Minting</h1>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h2 className="text-xl mb-4 text-gray-700 dark:text-gray-300">Connect your wallet to mint an NFT</h2>
-          <div className="flex justify-center">
-            <ConnectWallet />
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
   // If minting was successful
   if (status === 'success') {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center mb-6">
-          <Link href="/cars" className="mr-4 text-blue-600 dark:text-blue-400 hover:underline">
-            ← Back to My Vehicles
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Simple NFT Minting</h1>
-        </div>
+      <CarActionLayout title="Simple NFT Minting" showWalletInfo={false}>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-6">
             <p className="font-bold">Minting Successful!</p>
@@ -162,20 +141,14 @@ export default function SimpleMintPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </CarActionLayout>
     );
   }
   
   // Show error message if minting failed
   if (status === 'error') {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center mb-6">
-          <Link href="/cars" className="mr-4 text-blue-600 dark:text-blue-400 hover:underline">
-            ← Back to My Vehicles
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Simple NFT Minting</h1>
-        </div>
+      <CarActionLayout title="Simple NFT Minting" showWalletInfo={false}>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6">
             <p className="font-bold">Error during minting</p>
@@ -193,20 +166,13 @@ export default function SimpleMintPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </CarActionLayout>
     );
   }
   
   // Main form
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center mb-6">
-        <Link href="/cars" className="mr-4 text-blue-600 dark:text-blue-400 hover:underline">
-          ← Back to My Vehicles
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Simple NFT Minting</h1>
-      </div>
-      
+    <CarActionLayout title="Simple NFT Minting" showWalletInfo={true}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <div className="mb-4 p-3 bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 text-yellow-700 dark:text-yellow-200 rounded">
           <p className="font-medium">Smart Minting System</p>
@@ -321,16 +287,6 @@ export default function SimpleMintPage() {
           </div>
         </form>
       </div>
-      
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Connected Wallet</h2>
-        <p className="text-gray-700 dark:text-gray-300 break-all">
-          <span className="font-medium">Address:</span> {address}
-        </p>
-        <p className="text-gray-700 dark:text-gray-300 mt-2">
-          <span className="font-medium">Role:</span> {isContractOwner() ? 'Contract Owner' : 'User'}
-        </p>
-      </div>
-    </div>
+    </CarActionLayout>
   );
 } 

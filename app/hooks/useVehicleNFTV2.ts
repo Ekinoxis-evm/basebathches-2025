@@ -1,4 +1,6 @@
-import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useAccount, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi';
+import { CONTRACT_ADDRESSES, CONTRACT_OWNER, VEHICLE_NFT_V2_ABI } from '@/app/contracts/config';
+import { baseSepolia } from 'wagmi/chains';
 
 // Define a type for the mint function parameters
 type MintParams = {
@@ -7,78 +9,39 @@ type MintParams = {
   };
 };
 
-// Updated ABI with the new publicMintVehicleNFT function
-const VehicleNFT_V2 = {
-  abi: [
-    {
-      inputs: [
-        { name: 'tokenURI', type: 'string' }
-      ],
-      name: 'publicMintVehicleNFT',
-      outputs: [{ name: '', type: 'uint256' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { name: 'to', type: 'address' },
-        { name: 'tokenURI', type: 'string' }
-      ],
-      name: 'mintVehicleNFT',
-      outputs: [{ name: '', type: 'uint256' }],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { name: 'minter', type: 'address' }
-      ],
-      name: 'authorizeMinter',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [
-        { name: 'minter', type: 'address' }
-      ],
-      name: 'isMinterAuthorized',
-      outputs: [{ name: '', type: 'bool' }],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, name: 'to', type: 'address' },
-        { indexed: false, name: 'tokenId', type: 'uint256' },
-        { indexed: false, name: 'tokenURI', type: 'string' }
-      ],
-      name: 'VehicleNFTMinted',
-      type: 'event',
-    },
-  ],
-  contractName: 'VehicleNFT_V2',
-};
-
-// Contract Information
-const CONTRACT_ADDRESS = '0x1C4cc777E309c6403Ce82e2332887470773A8a74';
-const CONTRACT_OWNER = '0x3f9b734394FC1E96afe9523c69d30D227dF4ffca';
-
 export function useVehicleNFTV2() {
   const contractConfig = {
-    address: CONTRACT_ADDRESS as `0x${string}`,
-    abi: VehicleNFT_V2.abi,
+    address: CONTRACT_ADDRESSES.VehicleNFT_V2 as `0x${string}`,
+    abi: VEHICLE_NFT_V2_ABI,
   };
 
   const { address } = useAccount();
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
 
   const isLoading = isPending || isConfirming;
+  
+  // Check if user is on the correct chain (Base Sepolia)
+  const isOnCorrectChain = chainId === baseSepolia.id;
+  
+  // Function to switch to Base Sepolia if needed
+  const ensureCorrectChain = async (): Promise<boolean> => {
+    if (isOnCorrectChain) return true;
+    
+    try {
+      console.log('Switching to Base Sepolia...');
+      await switchChain({ chainId: baseSepolia.id });
+      return true;
+    } catch (err) {
+      console.error('Failed to switch chain:', err);
+      throw new Error('Para tokenizar vehículos, debes usar la red Base Sepolia. Por favor, cambia de red e inténtalo de nuevo.');
+    }
+  };
   
   // Check if the connected wallet is the contract owner
   const isContractOwner = (): boolean => {
@@ -90,10 +53,13 @@ export function useVehicleNFTV2() {
   const smartMintVehicleNFT = async (params: MintParams) => {
     if (!address) throw new Error('Wallet not connected');
     
+    // Ensure user is on the correct chain
+    await ensureCorrectChain();
+    
     try {
       // Log all relevant information for debugging
       console.log('Smart minting with:', {
-        contractAddress: CONTRACT_ADDRESS,
+        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
         walletAddress: address,
         isOwner: isContractOwner(),
         tokenURI: params.tokenMetadata.uri
@@ -126,9 +92,12 @@ export function useVehicleNFTV2() {
   const publicMintVehicleNFT = async (params: MintParams) => {
     if (!address) throw new Error('Wallet not connected');
     
+    // Ensure user is on the correct chain
+    await ensureCorrectChain();
+    
     try {
       console.log('Public minting with:', {
-        contractAddress: CONTRACT_ADDRESS,
+        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
         walletAddress: address,
         tokenURI: params.tokenMetadata.uri
       });
@@ -151,9 +120,12 @@ export function useVehicleNFTV2() {
       console.warn('Non-owner wallet attempting to use owner-only minting function');
     }
     
+    // Ensure user is on the correct chain
+    await ensureCorrectChain();
+    
     try {
       console.log('Owner minting with:', {
-        contractAddress: CONTRACT_ADDRESS,
+        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
         walletAddress: address,
         recipientAddress: address,
         isOwner: isContractOwner(),
@@ -175,6 +147,9 @@ export function useVehicleNFTV2() {
   const authorizeMinter = async (minterAddress: `0x${string}`) => {
     if (!address) throw new Error('Wallet not connected');
     if (!isContractOwner()) throw new Error('Only the contract owner can authorize minters');
+    
+    // Ensure user is on the correct chain
+    await ensureCorrectChain();
     
     try {
       console.log(`Authorizing minter address: ${minterAddress}`);
@@ -207,7 +182,9 @@ export function useVehicleNFTV2() {
     error,
     transactionHash: hash,
     transactionUrl: getTransactionUrl(),
-    contractAddress: CONTRACT_ADDRESS,
-    ownerAddress: CONTRACT_OWNER
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
+    ownerAddress: CONTRACT_OWNER,
+    isOnCorrectChain,
+    ensureCorrectChain
   };
 } 

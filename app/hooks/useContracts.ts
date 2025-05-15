@@ -1,5 +1,5 @@
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
-import addresses from '../src/contracts/addresses.json';
+import { CONTRACT_ADDRESSES, VEHICLE_NFT_ABI } from '@/app/contracts/config';
 
 // Define a type for the mint function parameters
 type MintParams = {
@@ -36,8 +36,8 @@ const VehicleNFT = {
 
 export function useVehicleNFT() {
   const contractConfig = {
-    address: addresses.VehicleNFT as `0x${string}`,
-    abi: VehicleNFT.abi,
+    address: CONTRACT_ADDRESSES.VehicleNFT as `0x${string}`,
+    abi: VEHICLE_NFT_ABI,
   };
 
   const { address } = useAccount();

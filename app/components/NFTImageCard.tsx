@@ -8,22 +8,18 @@ interface NFTImageCardProps {
   imageUri: string;
   title: string;
   tokenId: string;
-  status?: string;
   placa?: string;
   onClick?: () => void;
   showFullDetails?: boolean;
-  price?: string | number;
 }
 
 export default function NFTImageCard({ 
   imageUri, 
   title, 
   tokenId, 
-  status, 
   placa, 
   onClick, 
-  showFullDetails = false,
-  price
+  showFullDetails = false
 }: NFTImageCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -62,29 +58,15 @@ export default function NFTImageCard({
           </div>
         )}
 
-        {/* Status badges */}
+        {/* TokenID badge */}
         <div className="absolute inset-0 flex flex-col justify-between p-3">
-          <div className="flex justify-between">
-            {status && (
-              <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {status}
-              </span>
-            )}
-            
+          <div className="flex justify-end">
             {tokenId && (
               <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                Token {tokenId}
+                Token #{tokenId}
               </span>
             )}
           </div>
-          
-          {price && (
-            <div className="self-end">
-              <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                {typeof price === 'number' ? price.toFixed(2) : price} ETH
-              </span>
-            </div>
-          )}
         </div>
         
         {/* Hover overlay with gradient */}

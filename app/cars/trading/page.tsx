@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,7 +6,12 @@ import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import Image from 'next/image';
-
+import { readContract } from '@wagmi/core';
+import { config } from '@/app/config/wagmi';
+import { baseSepolia } from 'wagmi/chains';
+import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
+import { NFTEscrow } from '@/app/components/NFTEscrow';
+import { EscrowState } from '@/app/hooks/useEscrow';
 
 // Define a Car type that represents the structure of a car object
 interface Car {
@@ -29,12 +34,40 @@ interface Car {
   // Add any other properties that your car objects have
 }
 
+// Sample NFT metadata for demonstration
+const SAMPLE_METADATA = {
+  1: {
+    name: 'Toyota Corolla 2022',
+    image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    description: 'Low mileage family sedan in excellent condition'
+  },
+  2: {
+    name: 'Chevrolet Camaro 2020',
+    image: 'https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    description: 'Powerful sports car with V8 engine'
+  }
+};
+
+// Simplified ABI for EscrowNFT contract
+const ESCROW_ABI = [
+  {
+    inputs: [],
+    name: 'getCurrentEscrowId',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  }
+];
+
 export default function TradingPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
   const [cars, setCars] = useState<Car[]>([]); // Updated type
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'my-listings', 'purchased'
+  const [escrowIds, setEscrowIds] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [useSampleData, setUseSampleData] = useState(false);
   
   // Fetch cars for sale
   useEffect(() => {
@@ -199,6 +232,57 @@ export default function TradingPage() {
         alert('There was an error removing your listing. Please try again.');
       }
     }
+  };
+
+  useEffect(() => {
+    async function fetchEscrows() {
+      setIsLoading(true);
+      
+      try {
+        // Temporarily use sample data for development
+        if (useSampleData) {
+          console.log('Using sample escrow data');
+          setEscrowIds(['1', '2']);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Get the current escrow ID from the contract
+        const result = await readContract(config, {
+          address: CONTRACT_ADDRESSES.EscrowNFT as `0x${string}`,
+          abi: ESCROW_ABI,
+          functionName: 'getCurrentEscrowId',
+          chainId: baseSepolia.id,
+        });
+        
+        const currentId = Number(result);
+        console.log('Current escrow ID:', currentId);
+        
+        if (currentId > 0) {
+          // Create an array of escrow IDs from 1 to currentId
+          const ids = Array.from({ length: currentId }, (_, i) => (i + 1).toString());
+          setEscrowIds(ids);
+        } else {
+          setEscrowIds([]);
+        }
+      } catch (err) {
+        console.error('Error fetching escrows:', err);
+        setError('Failed to load escrows. Using sample data instead.');
+        
+        // Fallback to sample data if there's an error
+        setEscrowIds(['1', '2']);
+        setUseSampleData(true);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchEscrows();
+  }, [useSampleData]);
+  
+  // Toggle between real and sample data
+  const toggleSampleData = () => {
+    setUseSampleData(!useSampleData);
   };
 
   if (!isConnected) {
