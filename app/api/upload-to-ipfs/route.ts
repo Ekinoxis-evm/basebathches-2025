@@ -91,6 +91,17 @@ export async function POST(request: NextRequest) {
     // Add image to metadata
     metadataObj.image = imageCid;
     
+    // Ensure OpenSea standard metadata fields
+    metadataObj.name = metadataObj.name || "Vehicle NFT";
+    metadataObj.description = metadataObj.description || "Tokenized vehicle on CarP2P";
+    metadataObj.external_url = `https://carp2p.com/cars/${placa || 'unknown'}`;
+
+    // Add a direct link to the contract and token ID for OpenSea to properly index
+    metadataObj.opensea = {
+      contractAddress: process.env.NFT_CONTRACT_ADDRESS,
+      tokenId: 0 // This will be updated when minted
+    };
+    
     // Add vehicle type attributes if not present
     if (!metadataObj.attributes) {
       metadataObj.attributes = [];

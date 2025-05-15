@@ -12,6 +12,8 @@ import { useNFTDetails } from '@/app/hooks/useNFTDetails';
 import { useUserNFTs } from '@/app/hooks/useUserNFTs';
 import { SellNFTForm } from '@/app/components/SellNFTForm';
 import Dialog from '@/app/components/Dialog';
+import OpenSeaLink from '../../components/OpenSeaLink';
+import BaseScanLink from '../../components/BaseScanLink';
 
 // Import ConnectWallet dynamically with SSR disabled to prevent hydration errors
 const ConnectWallet = dynamic(
@@ -152,6 +154,13 @@ const SAMPLE_VEHICLES = {
     numeroSerie: 'TESSER456',
     numeroChasis: 'TESCHS789',
   }
+};
+
+// Helper function to get attribute value
+const getVehicleAttribute = (attributes: any[] | undefined, traitType: string): string | null => {
+  if (!attributes) return null;
+  const attribute = attributes.find(attr => attr.trait_type === traitType);
+  return attribute ? attribute.value : null;
 };
 
 export default function VehicleDetailsPage() {
@@ -330,15 +339,35 @@ export default function VehicleDetailsPage() {
           </div>
           
           {/* Vehicle Title and Plate */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {vehicleDetails.title}
-            </h2>
-            {vehicleDetails.placa && (
-              <div className="flex items-center">
-                <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
-                  Plate: {vehicleDetails.placa}
-                </span>
+          <div className="flex flex-col md:flex-row justify-between items-start mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                {vehicleDetails.title}
+              </h1>
+              {vehicleDetails.placa && (
+                <div className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 inline-block px-3 py-1 rounded-md text-sm">
+                  Placa: {vehicleDetails.placa}
+                </div>
+              )}
+            </div>
+            
+            {/* Add blockchain explorer links */}
+            {vehicleDetails.tokenId && (
+              <div className="mt-2 md:mt-0 flex flex-col md:flex-row gap-3">
+                <OpenSeaLink 
+                  tokenId={vehicleDetails.tokenId}
+                  chainName="base-sepolia"
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  View on OpenSea
+                </OpenSeaLink>
+                
+                <BaseScanLink 
+                  tokenId={vehicleDetails.tokenId}
+                  className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                >
+                  View on BaseScan
+                </BaseScanLink>
               </div>
             )}
           </div>
@@ -403,18 +432,21 @@ export default function VehicleDetailsPage() {
                 </p>
               </div>
               
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <a 
-                  href={`https://sepolia.basescan.org/token/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}?a=${vehicleDetails.tokenId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-3">
+                <BaseScanLink 
+                  tokenId={vehicleDetails.tokenId}
+                  className="text-green-600 dark:text-green-400 hover:underline flex items-center"
+                >
+                  View on BaseScan
+                </BaseScanLink>
+                
+                <OpenSeaLink 
+                  tokenId={vehicleDetails.tokenId}
+                  chainName="base-sepolia"
                   className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
                 >
-                  <span>View on BaseScan</span>
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                  </svg>
-                </a>
+                  View on OpenSea
+                </OpenSeaLink>
               </div>
             </div>
           </div>

@@ -4,15 +4,25 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import Image from 'next/image';
+import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import dynamic from 'next/dynamic';
+import { SellNFTForm } from '../components/SellNFTForm';
+import Dialog from '../components/Dialog';
 
+// Import ConnectWallet dynamically with SSR disabled to prevent hydration errors
+const DynamicConnectWallet = dynamic(
+  () => import('@coinbase/onchainkit/wallet').then(mod => mod.ConnectWallet),
+  { ssr: false }
+);
+
+// Define Car type explicitly
 type Car = {
   id: string;
   title: string;
   image: string;
   price: string;
-  seller?: string; // Allow undefined
+  seller: string;
   tokenId: string;
   yearModel: string;
   brand: string;
@@ -20,30 +30,30 @@ type Car = {
   kilometers: string;
   location: string;
   isMine: boolean;
-  purchasedBy?: string; // Opcional si no siempre está presente
+  purchasedBy?: string;
 };
 
 export default function TradingPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
   const [cars, setCars] = useState<Car[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'my-listings', 'purchased'
-  
-  // Fetch cars for sale
+  const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('listings'); // 'listings' or 'orders'
+  const [isSellDialogOpen, setIsSellDialogOpen] = useState(false);
+  const [selectedNFT, setSelectedNFT] = useState<Car | null>(null);
+
   useEffect(() => {
     const fetchCars = async () => {
-      setIsLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoading(true);
         
-        // Mock car data
-        const mockCars = [
+        // This would be replaced with actual API calls to your backend or blockchain
+        // For now, use mock data and cast it to the Car[] type
+        const mockCars: Car[] = [
           {
             id: '1',
             title: 'Toyota Corolla 2022',
-            image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3Dttps://images.unsplash.com/photo-1612563893490-d86ed296e5e6?q=80&w=2669&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75',
             price: '1.5',
             seller: '0x1234...5678',
             tokenId: '#1',
@@ -56,15 +66,15 @@ export default function TradingPage() {
           },
           {
             id: '2',
-            title: 'Chevrolet Camaro 2020',
-            image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d',
-            price: '2.8',
-            seller: address || '', // Ensure seller is always a string
+            title: 'Ford Ranger 2020',
+            image: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5',
+            price: '2.0',
+            seller: address ? String(address) : '',
             tokenId: '#2',
             yearModel: '2020',
-            brand: 'Chevrolet',
-            model: 'Camaro',
-            kilometers: '20,000',
+            brand: 'Ford',
+            model: 'Ranger',
+            kilometers: '30,000',
             location: 'Medellín, Colombia',
             isMine: true
           },
@@ -87,7 +97,7 @@ export default function TradingPage() {
             title: 'Ford Mustang 2019',
             image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8',
             price: '2.2',
-            seller: address, // Current user's address
+            seller: address ? String(address) : '',
             tokenId: '#4',
             yearModel: '2019',
             brand: 'Ford',
@@ -128,85 +138,36 @@ export default function TradingPage() {
         
         setCars(mockCars);
       } catch (error) {
-        console.error('Error fetching cars for sale:', error);
+        console.error('Failed to fetch cars:', error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
-    
+
     fetchCars();
   }, [address]);
-  
-  // Filter cars based on active tab
-  const filteredCars = cars.filter(car => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'my-listings') return car.isMine;
-    if (activeTab === 'purchased') return car.purchasedBy === address;
-    return true;
-  });
-  
-  // Handle car purchase
-  const handleBuy = async (carId: string) => {
-    if (!isConnected) {
-      alert('Please connect your wallet to purchase a car');
-      return;
-    }
-    
-    if (confirm('Are you sure you want to purchase this car?')) {
-      try {
-        // Simulate purchase process
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Here would be the actual escrow contract interaction
-        
-        alert('Car purchased successfully!');
-        
-        // Update cars state - in a real app, you would refetch from the API
-        setCars(prevCars => 
-          prevCars.map(car => 
-            car.id === carId 
-              ? { ...car, purchasedBy: address, isMine: false }
-              : car
-          )
-        );
-        
-        // Navigate to the purchased car details
-        router.push(`/cars/${carId}`);
-      } catch (error) {
-        console.error('Error purchasing car:', error);
-        alert('There was an error purchasing the car. Please try again.');
-      }
-    }
+
+  // Open the sell dialog when 'Sell My Vehicle' is clicked
+  const handleSellClick = (nft = null) => {
+    setSelectedNFT(nft);
+    setIsSellDialogOpen(true);
   };
-  
-  // Handle removing a listing
-  const handleRemoveListing = async (carId: string) => {
-    if (confirm('Are you sure you want to remove this listing?')) {
-      try {
-        // Simulate removing process
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Here would be the actual contract interaction
-        
-        // Update cars state - in a real app, you would refetch from the API
-        setCars(prevCars => prevCars.filter(car => car.id !== carId));
-        
-        alert('Listing removed successfully!');
-      } catch (error) {
-        console.error('Error removing listing:', error);
-        alert('There was an error removing your listing. Please try again.');
-      }
-    }
+
+  // Handle successful listing creation
+  const handleSellSuccess = (escrowId: string) => {
+    setIsSellDialogOpen(false);
+    // Refresh the car listings
+    router.refresh();
   };
 
   if (!isConnected) {
     return (
-      <div className="max-w-7xl mx-auto py-6 px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">CarP2P Trading</h1>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
           <h2 className="text-xl mb-4 text-gray-700 dark:text-gray-300">Connect your wallet to view trading</h2>
           <div className="flex justify-center">
-            <ConnectWallet />
+            <DynamicConnectWallet />
           </div>
         </div>
       </div>
@@ -214,103 +175,237 @@ export default function TradingPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">CarP2P Trading</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Listings Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="p-5 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Browse Vehicle Listings</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Find tokenized vehicles for sale on the marketplace.
-            </p>
-          </div>
-          <div className="p-5">
-            <ul className="space-y-2">
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>View all available vehicle NFTs for sale</span>
-              </li>
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>Secure escrow-protected transactions</span>
-              </li>
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>Pay with BCOP tokens (6 decimals)</span>
-              </li>
-            </ul>
-          </div>
-          <div className="p-5 bg-gray-50 dark:bg-gray-700">
-            <Link 
-              href="/trading/listings" 
-              className="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors text-center"
-            >
-              Browse Listings
-            </Link>
-          </div>
-        </div>
+    <div className="max-w-7xl mx-auto px-4">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CarP2P Trading</h1>
         
-        {/* My Orders Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="p-5 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Manage My Orders</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Track your active escrows, purchases, and sales.
-            </p>
-          </div>
-          <div className="p-5">
-            <ul className="space-y-2">
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>View your created listings</span>
-              </li>
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>Sign and complete escrow transactions</span>
-              </li>
-              <li className="flex items-center text-gray-700 dark:text-gray-300">
-                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>Track purchases and sales history</span>
-              </li>
-            </ul>
-          </div>
-          <div className="p-5 bg-gray-50 dark:bg-gray-700">
-            <Link 
-              href="/trading/orders" 
-              className="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors text-center"
-            >
-              View My Orders
-            </Link>
-          </div>
-        </div>
-      </div>
-      
-      {/* Create Listing Button */}
-      <div className="mt-8 text-center">
-        <Link 
-          href="/cars" 
-          className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-md transition-colors"
+        {/* "Sell My Vehicle" button in top right */}
+        <button
+          onClick={() => handleSellClick()}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
         >
           Sell My Vehicle
-        </Link>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Select one of your tokenized vehicles to list for sale
-        </p>
+        </button>
       </div>
+
+      {/* Two column layout for features */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Vehicle Listings Feature Box */}
+        <div 
+          className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all ${selectedTab === 'listings' ? 'ring-2 ring-blue-500' : 'hover:shadow-lg'}`}
+          onClick={() => setSelectedTab('listings')}
+        >
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Vehicle Listings</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Find tokenized vehicles for sale on the marketplace.
+          </p>
+          <ul className="text-gray-600 dark:text-gray-300 ml-5 list-disc space-y-2">
+            <li>View all available vehicle NFTs for sale</li>
+            <li>Secure escrow-protected transactions</li>
+            <li>Pay with BCOP tokens (6 decimals)</li>
+          </ul>
+        </div>
+
+        {/* My Orders Feature Box */}
+        <div 
+          className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer transition-all ${selectedTab === 'orders' ? 'ring-2 ring-blue-500' : 'hover:shadow-lg'}`} 
+          onClick={() => setSelectedTab('orders')}
+        >
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">My Orders</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Manage and track your active escrows, purchases, and sales.
+          </p>
+          <ul className="text-gray-600 dark:text-gray-300 ml-5 list-disc space-y-2">
+            <li>View your created listings</li>
+            <li>Sign and complete escrow transactions</li>
+            <li>Track purchases and sales history</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          {/* Tab Headers */}
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setSelectedTab('listings')}
+              className={`flex-1 py-4 px-6 text-center font-medium ${
+                selectedTab === 'listings'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              Available Vehicles
+            </button>
+            <button
+              onClick={() => setSelectedTab('orders')}
+              className={`flex-1 py-4 px-6 text-center font-medium ${
+                selectedTab === 'orders'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              My Orders
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <>
+                {selectedTab === 'listings' && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                      Available Vehicles
+                    </h3>
+                    
+                    {cars.length === 0 ? (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500 dark:text-gray-400">No vehicles found</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {cars.filter(car => !car.isMine).map((car) => (
+                          <div key={car.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            <div className="relative aspect-video overflow-hidden">
+                              <Image 
+                                src={car.image} 
+                                alt={car.title}
+                                width={400}
+                                height={225}
+                                className="object-cover w-full h-full"
+                              />
+                              <div className="absolute top-0 right-0 m-2 px-2 py-1 bg-purple-600 text-white text-xs font-bold rounded">
+                                Token {car.tokenId}
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                                {car.title}
+                              </h4>
+                              <div className="flex justify-between items-center mb-3">
+                                <span className="text-gray-600 dark:text-gray-400 text-sm">
+                                  {car.brand} {car.model} {car.yearModel}
+                                </span>
+                                <span className="text-blue-600 dark:text-blue-400 font-bold">
+                                  {car.price} BCOP
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4">
+                                <div>
+                                  <span className="font-medium">Kilometers:</span> {car.kilometers}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Location:</span> {car.location}
+                                </div>
+                              </div>
+                              <Link 
+                                href={`/cars/${car.id}`}
+                                className="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                              >
+                                View Details
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {selectedTab === 'orders' && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-6 text-gray-800 dark:text-white">
+                      My Active Listings
+                    </h3>
+                    
+                    {cars.filter(car => car.isMine).length === 0 ? (
+                      <div className="text-center py-8 mb-12 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-gray-500 dark:text-gray-400 mb-4">You don't have any active listings</p>
+                        <button
+                          onClick={() => handleSellClick()}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                        >
+                          Create a Listing
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4 mb-12">
+                        {cars.filter(car => car.isMine).map((car) => (
+                          <div 
+                            key={car.id} 
+                            className="flex flex-col md:flex-row items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                          >
+                            <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
+                              <div className="w-16 h-16 md:w-20 md:h-20 relative mr-4 mb-2 md:mb-0">
+                                <Image 
+                                  src={car.image} 
+                                  alt={car.title}
+                                  width={80}
+                                  height={80}
+                                  className="object-cover w-full h-full rounded"
+                                />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                                  {car.title}
+                                </h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  Token {car.tokenId} · Listed for {car.price} BCOP
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Link 
+                                href={`/cars/${car.id}`}
+                                className="px-3 py-1 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 rounded hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors"
+                              >
+                                View
+                              </Link>
+                              <button
+                                className="px-3 py-1 text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-gray-600 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <h3 className="text-lg font-semibold mb-6 text-gray-800 dark:text-white">
+                      Purchase History
+                    </h3>
+                    
+                    <div className="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <p className="text-gray-500 dark:text-gray-400">No purchase history yet</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Sell NFT Dialog */}
+      <Dialog
+        isOpen={isSellDialogOpen}
+        onClose={() => setIsSellDialogOpen(false)}
+        title="Sell Your Vehicle"
+      >
+        <SellNFTForm
+          tokenId={selectedNFT?.tokenId || ''}
+          tokenName={selectedNFT?.title || ''}
+          tokenImage={selectedNFT?.image || ''}
+          onSuccess={handleSellSuccess}
+        />
+      </Dialog>
     </div>
   );
 }

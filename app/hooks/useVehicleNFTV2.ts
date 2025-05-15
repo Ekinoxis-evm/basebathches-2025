@@ -1,6 +1,7 @@
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi';
 import { CONTRACT_ADDRESSES, CONTRACT_OWNER, VEHICLE_NFT_V2_ABI } from '@/app/contracts/config';
 import { baseSepolia } from 'wagmi/chains';
+import { useCallback } from 'react';
 
 // Define a type for the mint function parameters
 type MintParams = {
@@ -20,7 +21,7 @@ export function useVehicleNFTV2() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
 
@@ -30,18 +31,12 @@ export function useVehicleNFTV2() {
   const isOnCorrectChain = chainId === baseSepolia.id;
   
   // Function to switch to Base Sepolia if needed
-  const ensureCorrectChain = async (): Promise<boolean> => {
-    if (isOnCorrectChain) return true;
-    
-    try {
-      console.log('Switching to Base Sepolia...');
-      await switchChain({ chainId: baseSepolia.id });
-      return true;
-    } catch (err) {
-      console.error('Failed to switch chain:', err);
-      throw new Error('Para tokenizar vehículos, debes usar la red Base Sepolia. Por favor, cambia de red e inténtalo de nuevo.');
+  const ensureCorrectChain = useCallback(() => {
+    if (!isOnCorrectChain) {
+      throw new Error('Please switch to Base Sepolia network');
     }
-  };
+    return true;
+  }, [isOnCorrectChain]);
   
   // Check if the connected wallet is the contract owner
   const isContractOwner = (): boolean => {
@@ -90,56 +85,56 @@ export function useVehicleNFTV2() {
 
   // Public mint function that doesn't require owner privileges
   const publicMintVehicleNFT = async (params: MintParams) => {
-    if (!address) throw new Error('Wallet not connected');
-    
-    // Ensure user is on the correct chain
-    await ensureCorrectChain();
-    
     try {
-      console.log('Public minting with:', {
-        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
-        walletAddress: address,
-        tokenURI: params.tokenMetadata.uri
-      });
+      ensureCorrectChain();
       
-      return writeContract({
+      console.log('Minting NFT with URI:', params.tokenMetadata.uri);
+      
+      const tx = await writeContract({
         ...contractConfig,
         functionName: 'publicMintVehicleNFT',
-        args: [params.tokenMetadata.uri]
+        args: [params.tokenMetadata.uri],
       });
-    } catch (err) {
-      console.error('Error during public minting:', err);
-      throw err;
+      
+      // Log success and OpenSea URL once confirmed
+      console.log('NFT mint transaction hash:', tx);
+      console.log('View transaction:', `https://sepolia.basescan.org/tx/${tx}`);
+      // Note: At this point we don't know the token ID yet until the transaction is confirmed
+      
+      return tx;
+    } catch (error) {
+      console.error('Error in publicMintVehicleNFT:', error);
+      throw error;
     }
   };
 
   // Original mint function (owner only)
   const mintVehicleNFT = async (params: MintParams) => {
-    if (!address) throw new Error('Wallet not connected');
-    if (!isContractOwner()) {
-      console.warn('Non-owner wallet attempting to use owner-only minting function');
-    }
-    
-    // Ensure user is on the correct chain
-    await ensureCorrectChain();
-    
     try {
-      console.log('Owner minting with:', {
-        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
-        walletAddress: address,
-        recipientAddress: address,
-        isOwner: isContractOwner(),
-        tokenURI: params.tokenMetadata.uri
-      });
+      ensureCorrectChain();
       
-      return writeContract({
+      if (!address) {
+        throw new Error('Wallet not connected');
+      }
+      
+      console.log('Owner minting NFT with URI:', params.tokenMetadata.uri);
+      console.log('Minting to address:', address);
+      
+      const tx = await writeContract({
         ...contractConfig,
         functionName: 'mintVehicleNFT',
-        args: [address, params.tokenMetadata.uri]
+        args: [address, params.tokenMetadata.uri],
       });
-    } catch (err) {
-      console.error('Error during owner minting:', err);
-      throw err;
+      
+      // Log success and OpenSea URL once confirmed
+      console.log('NFT mint transaction hash:', tx);
+      console.log('View transaction:', `https://sepolia.basescan.org/tx/${tx}`);
+      // Note: At this point we don't know the token ID yet until the transaction is confirmed
+      
+      return tx;
+    } catch (error) {
+      console.error('Error in mintVehicleNFT:', error);
+      throw error;
     }
   };
 
@@ -171,6 +166,11 @@ export function useVehicleNFTV2() {
     return `https://sepolia.basescan.org/tx/${hash}`;
   };
 
+  // Format OpenSea URL for the NFT
+  const getOpenSeaUrl = (tokenId: string, contractAddress: string = CONTRACT_ADDRESSES.VehicleNFT_V2) => {
+    return `https://testnets.opensea.io/assets/base-sepolia/${contractAddress}/${tokenId}`;
+  };
+
   return { 
     mintVehicleNFT,
     publicMintVehicleNFT,
@@ -178,13 +178,14 @@ export function useVehicleNFTV2() {
     authorizeMinter,
     isContractOwner,
     isLoading, 
-    isSuccess, 
+    isSuccess: isConfirmed, 
     error,
     transactionHash: hash,
     transactionUrl: getTransactionUrl(),
     contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2,
     ownerAddress: CONTRACT_OWNER,
     isOnCorrectChain,
-    ensureCorrectChain
+    ensureCorrectChain,
+    getOpenSeaUrl
   };
 } 

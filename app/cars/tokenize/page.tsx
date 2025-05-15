@@ -5,9 +5,11 @@ import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import Link from 'next/link';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
-import { useVehicleNFTV2 } from '@/app/hooks/useVehicleNFTV2';
+import { useVehicleNFTV2 } from '../../hooks/useVehicleNFTV2';
+import { CONTRACT_ADDRESSES } from '../../contracts/config';
 import Image from 'next/image';
 import ImageGuidelines from './ImageGuidelines';
+import { ethers } from 'ethers';
 
 // Define types for formData
 type VehicleBasicInfo = {
@@ -100,6 +102,7 @@ export default function TokenizePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitStatus, setSubmitStatus] = useState<string | null>(null);
+  const [openSeaUrl, setOpenSeaUrl] = useState<string | null>(null);
 
   // Handler for form field changes
   const handleChange = (
@@ -323,6 +326,81 @@ export default function TokenizePage() {
         
         // If we got here without an error, the transaction was successful
         setSubmitStatus('success');
+
+        // Now listen for transaction confirmation to get the token ID
+        if (transactionHash) {
+          // Wait for transaction to be confirmed and then update metadata with token ID
+          const waitForConfirmation = async () => {
+            try {
+              console.log('Waiting for transaction confirmation...');
+              
+              // Wait for transaction receipt
+              const provider = new ethers.providers.JsonRpcProvider('https://sepolia.base.org');
+              const receipt = await provider.waitForTransaction(transactionHash);
+              
+              if (receipt && receipt.logs) {
+                // Try to parse token ID from logs
+                // The VehicleNFTMinted event has tokenId as the second parameter (index 1)
+                // and it's not indexed, so it will be in the data portion
+                const abiCoder = new ethers.utils.AbiCoder();
+                let tokenId = null;
+                
+                for (const log of receipt.logs) {
+                  // Check if this log is from our NFT contract
+                  if (log.address.toLowerCase() === CONTRACT_ADDRESSES.VehicleNFT_V2.toLowerCase()) {
+                    try {
+                      // The tokenId should be in the data portion of the log
+                      // The format depends on your contract's event structure
+                      const decodedLog = abiCoder.decode(['uint256'], log.data);
+                      tokenId = decodedLog[0].toString();
+                      console.log('Found token ID:', tokenId);
+                      break;
+                    } catch (e) {
+                      console.error('Error parsing log:', e);
+                    }
+                  }
+                }
+                
+                if (tokenId) {
+                  // Now update the metadata with this token ID
+                  console.log(`Updating metadata for token ID: ${tokenId}`);
+                  
+                  try {
+                    const updateResponse = await fetch('/api/update-metadata', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        metadataUri: metadataUri,
+                        tokenId: tokenId,
+                        contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
+                      }),
+                    });
+                    
+                    if (updateResponse.ok) {
+                      const updateData = await updateResponse.json();
+                      console.log('Metadata updated successfully:', updateData);
+                      
+                      // Store the OpenSea URL for display to the user
+                      if (updateData.openseaUrl) {
+                        setOpenSeaUrl(updateData.openseaUrl);
+                      }
+                    } else {
+                      console.error('Failed to update metadata:', await updateResponse.text());
+                    }
+                  } catch (updateError) {
+                    console.error('Error updating metadata:', updateError);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error waiting for transaction confirmation:', error);
+            }
+          };
+          
+          waitForConfirmation();
+        }
       } catch (mintError) {
         console.error("Minting failed:", mintError);
         
@@ -421,6 +499,19 @@ export default function TokenizePage() {
                 className="text-blue-600 dark:text-blue-400 hover:underline break-all"
               >
                 {transactionHash}
+              </a>
+            </div>
+          )}
+          {openSeaUrl && (
+            <div className="mb-6 text-center">
+              <p className="text-gray-700 dark:text-gray-300 mb-2">OpenSea URL:</p>
+              <a 
+                href={openSeaUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+              >
+                {openSeaUrl}
               </a>
             </div>
           )}
