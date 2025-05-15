@@ -49,6 +49,11 @@ export default function NFTCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* NFT Badge */}
+      <div className="absolute top-0 left-0 m-3 px-2 py-1 bg-indigo-600 text-white text-xs font-bold rounded z-10">
+        NFT Token
+      </div>
+      
       {/* Main Image - Larger Prominence */}
       {displayImage && (
         <div className="relative h-60 w-full">
@@ -92,7 +97,7 @@ export default function NFTCard({
           </p>
           
           <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-            View Details
+            View NFT
           </button>
         </div>
       </div>

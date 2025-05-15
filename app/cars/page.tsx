@@ -93,7 +93,7 @@ export default function CarsPage() {
   if (!isConnected) {
     return (
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">My Vehicles</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">My Vehicle NFTs</h1>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
           <h2 className="text-xl mb-4 text-gray-700 dark:text-gray-300">Connect your wallet to view your vehicles</h2>
           <div className="flex justify-center">
@@ -107,14 +107,49 @@ export default function CarsPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Vehicles</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Vehicle NFTs</h1>
+          <p className="text-gray-600 mt-1">
+            View and manage the NFT tokens for vehicles that you own
+          </p>
+        </div>
         <div className="flex space-x-3">
+          <Link
+            href="/cars/trading"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center"
+          >
+            <span>View Marketplace</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </Link>
           <button
             onClick={handleTokenize}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
           >
             Tokenize New Vehicle
           </button>
+        </div>
+      </div>
+
+      <div className="p-4 mb-6 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <div className="flex items-start">
+          <div className="flex-shrink-0 text-indigo-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-indigo-800">About Vehicle NFTs</h3>
+            <div className="mt-2 text-sm text-indigo-700">
+              <p>
+                This page displays the actual <strong>NFT tokens</strong> that you own, showing the complete vehicle information and images.
+              </p>
+              <p className="mt-1">
+                To buy or sell vehicles through escrow contracts, visit the <Link href="/cars/trading" className="underline">Trading Marketplace</Link>.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -140,7 +175,7 @@ export default function CarsPage() {
           {userNFTs && userNFTs.length === 0 && !isLoading && (
             <div className="col-span-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow text-center">
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                No vehicles found in your wallet. The sample vehicles shown are for demonstration only.
+                No NFT vehicles found in your wallet. The sample vehicles shown are for demonstration only.
               </p>
               <p className="text-gray-500 dark:text-gray-500 text-sm">
                 For newly minted tokens, they will appear automatically in your inventory.

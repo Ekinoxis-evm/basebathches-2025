@@ -300,52 +300,88 @@ export default function TradingPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <Link href="/cars" className="mr-4 text-blue-600 dark:text-blue-400 hover:underline">
-            ← Back to My Cars
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CarP2P Trading</h1>
-        </div>
-      </div>
-      
-      {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">Vehicle Trading Marketplace</h1>
+        <div>
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
+            className={`px-4 py-2 mr-2 rounded-md ${
               activeTab === 'all'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             All Listings
           </button>
           <button
             onClick={() => setActiveTab('my-listings')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
+            className={`px-4 py-2 mr-2 rounded-md ${
               activeTab === 'my-listings'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             My Listings
           </button>
           <button
             onClick={() => setActiveTab('purchased')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
+            className={`px-4 py-2 rounded-md ${
               activeTab === 'purchased'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             Purchased
           </button>
         </div>
       </div>
-      
+
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-xl font-semibold">
+            {activeTab === 'all' && 'Available Vehicle Contracts'}
+            {activeTab === 'my-listings' && 'My Listed Vehicles'}
+            {activeTab === 'purchased' && 'Purchased Vehicles'}
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            {activeTab === 'all' && 'These are vehicle escrow contracts available for purchase on the marketplace'}
+            {activeTab === 'my-listings' && 'Vehicles you have listed for sale'}
+            {activeTab === 'purchased' && 'Vehicles you have purchased'}
+          </p>
+        </div>
+        
+        {activeTab === 'my-listings' && (
+          <Link href="/cars">
+            <span className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+              List New Vehicle
+            </span>
+          </Link>
+        )}
+      </div>
+
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <div className="flex items-start">
+          <div className="flex-shrink-0 text-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800">Vehicle Trading Information</h3>
+            <div className="mt-2 text-sm text-blue-700">
+              <p>
+                The listings below represent <strong>escrow contracts</strong> for vehicle purchases, not the NFT tokens themselves. 
+                Each listing contains basic transaction parameters needed for the escrow process when a buyer deposits BCOP tokens.
+              </p>
+              <p className="mt-1">
+                To see all your owned vehicle NFTs, visit the <Link href="/cars" className="underline">My Cars</Link> page.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -362,48 +398,37 @@ export default function TradingPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCars.map(car => (
-            <div key={car.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-              <div className="relative">
-              <div className="relative">
-                  <Image
-                    src={car.imageUrl || '/fallback-image.jpg'}
-                    alt={`${car.brand} ${car.modelo}`}
-                    width={500}  // Set appropriate width
-                    height={192} // Set appropriate height (48 * 4 = 192 based on your h-48 class)
-                    className="object-cover"  // You can still use object-cover
-                    priority={true}  // Optional: Add priority for images above the fold
-                  />
+            <div key={car.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{car.marca} {car.modelo}</h3>
+                  <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                    Token {car.tokenId}
+                  </span>
                 </div>
-                <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-semibold">
-                  {car.price} ETH
-                </div>
+                <p className="text-gray-500 text-sm">{car.yearModel} • {car.placa}</p>
               </div>
-              
+
+              {/* Contract Details */}
               <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{`${car.brand} ${car.modelo}`}</h3>
-                
-                <div className="mb-4 space-y-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Token ID:</span> {car.tokenId}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Year:</span> {car.yearModel}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Model:</span> {car.brand} {car.modelo}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Contract Price:</span>
+                  <span className="font-bold text-blue-600">{car.price} BCOP</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-4">
+                  <div>
                     <span className="font-medium">Kilometers:</span> {car.kilometers}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  </div>
+                  <div>
                     <span className="font-medium">Location:</span> {car.location}
-                  </p>
+                  </div>
                 </div>
                 
-                <div className="flex space-x-2">
+                {/* Action buttons */}
+                <div className="flex space-x-2 mt-4">
                   <Link 
                     href={`/cars/${car.id}`}
-                    className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-center text-gray-800 dark:text-white font-medium rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-lg transition-colors"
                   >
                     View Details
                   </Link>
@@ -411,16 +436,16 @@ export default function TradingPage() {
                   {car.isMine ? (
                     <button
                       onClick={() => handleRemoveListing(car.id)}
-                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
                     >
                       Remove
                     </button>
                   ) : (
                     <button
                       onClick={() => handleBuy(car.id)}
-                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                     >
-                      Buy Now
+                      Buy
                     </button>
                   )}
                 </div>
