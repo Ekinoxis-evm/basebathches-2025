@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { CONTRACT_ADDRESSES } from '../contracts/config';
+import { CONTRACT_ADDRESSES } from '../../contracts/config';
 
 // Format contract address if needed
 const formatAddress = (address: string) => {

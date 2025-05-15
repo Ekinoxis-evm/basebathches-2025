@@ -3,7 +3,7 @@ import { useAccount, useReadContract } from 'wagmi';
 import { readContract } from '@wagmi/core';
 import { baseSepolia } from 'wagmi/chains';
 import { config } from '@/app/config/wagmi';
-import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
+import { CONTRACT_ADDRESSES } from '../contracts/config';
 
 // Define interfaces
 interface NFT {

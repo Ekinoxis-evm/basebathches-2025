@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { useAccount } from 'wagmi';
-import { useVehicleNFTV2 } from '@/app/hooks/useVehicleNFTV2';
+import { useVehicleNFTV2 } from '../../../app/hooks/useVehicleNFTV2';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {

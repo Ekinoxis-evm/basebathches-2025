@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import Link from 'next/link';
-import { useVehicleNFTV2 } from '../hooks/useVehicleNFTV2';
+import { useVehicleNFTV2 } from '../../../app/hooks/useVehicleNFTV2';
 
 export default function AdminPage() {
   const { address, isConnected } = useAccount();

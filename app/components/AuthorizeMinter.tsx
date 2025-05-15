@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useVehicleNFTV2 } from '../hooks/useVehicleNFTV2';
+import { useVehicleNFTV2 } from '../../../app/hooks/useVehicleNFTV2';
 
 export default function AuthorizeMinter() {
   const [minterAddress, setMinterAddress] = useState<string>('');

@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { readContract } from '@wagmi/core';
 import { config } from '@/app/config/wagmi';
 import { baseSepolia } from 'wagmi/chains';
-import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
+import { CONTRACT_ADDRESSES } from '../../contracts/config';
 import { NFTEscrow } from '@/app/components/NFTEscrow';
 import { EscrowState } from '@/app/hooks/useEscrow';
 

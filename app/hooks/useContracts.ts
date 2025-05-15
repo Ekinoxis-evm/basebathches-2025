@@ -1,5 +1,5 @@
 import { useWriteContract, useAccount, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACT_ADDRESSES, VEHICLE_NFT_ABI } from '@/app/contracts/config';
+import { CONTRACT_ADDRESSES, VEHICLE_NFT_ABI } from '../basebathches-2025/contracts/config';
 
 // Define a type for the mint function parameters
 type MintParams = {

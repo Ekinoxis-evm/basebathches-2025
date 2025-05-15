@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import dynamic from 'next/dynamic';
 import NFTCard from '@/app/components/NFTCard';
-import { useUserNFTs } from '@/app/hooks/useUserNFTs';
-import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
+import { useUserNFTs } from '../../../app/hooks/useUserNFTs';
+import { CONTRACT_ADDRESSES } from '../../contracts/config';
 
 // Import ConnectWallet dynamically with SSR disabled to prevent hydration errors
 const ConnectWallet = dynamic(

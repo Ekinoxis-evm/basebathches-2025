@@ -1,5 +1,5 @@
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi';
-import { CONTRACT_ADDRESSES, CONTRACT_OWNER, VEHICLE_NFT_V2_ABI } from '@/app/contracts/config';
+import { CONTRACT_ADDRESSES, CONTRACT_OWNER, VEHICLE_NFT_V2_ABI } from '../contracts/config';
 import { baseSepolia } from 'wagmi/chains';
 import { useCallback } from 'react';
 
