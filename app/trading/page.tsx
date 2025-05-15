@@ -215,126 +215,102 @@ export default function TradingPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">CarP2P Trading</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">CarP2P Trading</h1>
       
-      {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
-              activeTab === 'all'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
-            }`}
-          >
-            All Listings
-          </button>
-          <button
-            onClick={() => setActiveTab('my-listings')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
-              activeTab === 'my-listings'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
-            }`}
-          >
-            My Listings
-          </button>
-          <button
-            onClick={() => setActiveTab('purchased')}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg ${
-              activeTab === 'purchased'
-                ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
-            }`}
-          >
-            Purchased
-          </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Listings Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Browse Vehicle Listings</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Find tokenized vehicles for sale on the marketplace.
+            </p>
+          </div>
+          <div className="p-5">
+            <ul className="space-y-2">
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>View all available vehicle NFTs for sale</span>
+              </li>
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Secure escrow-protected transactions</span>
+              </li>
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Pay with BCOP tokens (6 decimals)</span>
+              </li>
+            </ul>
+          </div>
+          <div className="p-5 bg-gray-50 dark:bg-gray-700">
+            <Link 
+              href="/trading/listings" 
+              className="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors text-center"
+            >
+              Browse Listings
+            </Link>
+          </div>
+        </div>
+        
+        {/* My Orders Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Manage My Orders</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Track your active escrows, purchases, and sales.
+            </p>
+          </div>
+          <div className="p-5">
+            <ul className="space-y-2">
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>View your created listings</span>
+              </li>
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Sign and complete escrow transactions</span>
+              </li>
+              <li className="flex items-center text-gray-700 dark:text-gray-300">
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Track purchases and sales history</span>
+              </li>
+            </ul>
+          </div>
+          <div className="p-5 bg-gray-50 dark:bg-gray-700">
+            <Link 
+              href="/trading/orders" 
+              className="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors text-center"
+            >
+              View My Orders
+            </Link>
+          </div>
         </div>
       </div>
       
-      {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : filteredCars.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-lg text-gray-600 dark:text-gray-400">No vehicles found</h3>
-          {activeTab === 'my-listings' && (
-            <p className="mt-2 text-gray-500 dark:text-gray-500">
-              You dont have any cars listed for sale. Go to your cars, view details, and click Sell to list one.
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCars.map(car => (
-            <div key={car.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-              <div className="relative">
-              <div className="relative w-full h-48">
-                <Image
-                    src={car.image}
-                    alt={car.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm font-semibold">
-                  {car.price} ETH
-                </div>
-              </div>
-              
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{car.title}</h3>
-                
-                <div className="mb-4 space-y-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Token ID:</span> {car.tokenId}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Year:</span> {car.yearModel}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Model:</span> {car.brand} {car.model}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Kilometers:</span> {car.kilometers}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Location:</span> {car.location}
-                  </p>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Link 
-                    href={`/cars/${car.id}`}
-                    className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-center text-gray-800 dark:text-white font-medium rounded-lg transition-colors"
-                  >
-                    View Details
-                  </Link>
-                  
-                  {car.isMine ? (
-                    <button
-                      onClick={() => handleRemoveListing(car.id)}
-                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
-                    >
-                      Remove
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleBuy(car.id)}
-                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-                    >
-                      Buy Now
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Create Listing Button */}
+      <div className="mt-8 text-center">
+        <Link 
+          href="/cars" 
+          className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-md transition-colors"
+        >
+          Sell My Vehicle
+        </Link>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Select one of your tokenized vehicles to list for sale
+        </p>
+      </div>
     </div>
   );
 }

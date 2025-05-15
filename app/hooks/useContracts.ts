@@ -36,7 +36,7 @@ const VehicleNFT = {
 
 export function useVehicleNFT() {
   const contractConfig = {
-    address: CONTRACT_ADDRESSES.VehicleNFT as `0x${string}`,
+    address: CONTRACT_ADDRESSES.VehicleNFT_V2 as `0x${string}`,
     abi: VEHICLE_NFT_ABI,
   };
 

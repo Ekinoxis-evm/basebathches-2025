@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import dynamic from 'next/dynamic';
-import NFTImageCard from '@/app/components/NFTImageCard';
+import NFTCard from '@/app/components/NFTCard';
 import { useUserNFTs } from '@/app/hooks/useUserNFTs';
+import { CONTRACT_ADDRESSES } from '@/app/contracts/config';
 
 // Import ConnectWallet dynamically with SSR disabled to prevent hydration errors
 const ConnectWallet = dynamic(
@@ -20,41 +21,51 @@ const SAMPLE_VEHICLES = [
     id: '1',
     tokenId: '1',
     title: 'Toyota Corolla 2022',
+    description: 'A well-maintained Toyota Corolla with low mileage and all service records.',
     image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     status: 'Owned',
     placa: 'ABC123',
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
   },
   {
     id: '2',
     tokenId: '2',
     title: 'Ford Mustang 2021',
+    description: 'Powerful Ford Mustang with V8 engine and premium sound system.',
     image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     status: 'Owned',
     placa: 'XYZ789',
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
   },
   {
     id: '3',
     tokenId: '3',
     title: 'Honda Civic 2023',
+    description: 'Fuel-efficient Honda Civic in excellent condition with new tires.',
     image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2570&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     status: 'Owned',
     placa: 'DEF456',
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
   },
   {
     id: '4',
     tokenId: '4',
     title: 'Chevrolet Camaro 2020',
+    description: 'Sports car with automatic transmission and premium interior.',
     image: 'https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?q=80&w=2669&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     status: 'Owned',
     placa: 'GHI789',
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
   },
   {
     id: '5',
     tokenId: '5',
     title: 'Tesla Model 3 2023',
+    description: 'All-electric Tesla with autopilot and zero emissions.',
     image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?q=80&w=2671&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     status: 'Owned',
     placa: 'JKL012',
+    contractAddress: CONTRACT_ADDRESSES.VehicleNFT_V2
   }
 ];
 
@@ -148,12 +159,14 @@ export default function CarsPage() {
           {useSampleData && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {SAMPLE_VEHICLES.map(car => (
-                <NFTImageCard
+                <NFTCard
                   key={car.id}
-                  imageUri={car.image}
                   title={car.title}
                   tokenId={car.tokenId}
+                  description={car.description}
+                  imageUrl={car.image}
                   placa={car.placa}
+                  contractAddress={car.contractAddress}
                   onClick={() => handleCardClick(car.id)}
                 />
               ))}
@@ -209,12 +222,14 @@ export default function CarsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayVehicles.map(car => (
-              <NFTImageCard
+              <NFTCard
                 key={car.id}
-                imageUri={car.image}
                 title={car.title}
                 tokenId={car.tokenId}
+                description={car.description}
+                imageUrl={car.image}
                 placa={car.placa}
+                contractAddress={car.contractAddress}
                 onClick={() => handleCardClick(car.id)}
               />
             ))}

@@ -402,11 +402,11 @@ export default function VehicleDetailsPage() {
       )}
 
       {/* Add Sell button if the user owns this NFT */}
-      {isConnected && currentNFT && (
+      {isConnected && isOwner && (
         <div className="mt-6 flex justify-end">
           <button
             onClick={() => setIsSellDialogOpen(true)}
-            className="rounded-lg bg-primary text-white px-6 py-2 font-semibold hover:bg-primary/90"
+            className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 font-semibold transition-colors"
           >
             Sell This Vehicle
           </button>
@@ -419,11 +419,11 @@ export default function VehicleDetailsPage() {
         onClose={() => setIsSellDialogOpen(false)}
         title="Sell Your Vehicle"
       >
-        {currentNFT && (
+        {vehicleDetails && (
           <SellNFTForm
-            tokenId={currentNFT.tokenId || currentNFT.id}
-            tokenName={currentNFT.title}
-            tokenImage={currentNFT.image}
+            tokenId={currentNFT?.tokenId || vehicleDetails.tokenId}
+            tokenName={currentNFT?.title || vehicleDetails.title}
+            tokenImage={currentNFT?.image || vehicleDetails.image}
             onSuccess={handleSellSuccess}
           />
         )}

@@ -17,6 +17,8 @@ type VehicleBasicInfo = {
   modelo: string;
   color: string;
   vin: string;
+  title: string;
+  description: string;
 };
 
 type NFTSettings = {
@@ -84,6 +86,8 @@ export default function TokenizePage() {
       modelo: '',
       color: '',
       vin: '',
+      title: '',
+      description: '',
     },
     nftSettings: {
       price: '',
@@ -151,6 +155,12 @@ export default function TokenizePage() {
     
     if (currentStep === 1) {
       // Validate vehicle info fields
+      if (!formData.vehicleInfo.title) {
+        newErrors['vehicleInfo.title'] = 'El título del NFT es requerido';
+      }
+      if (!formData.vehicleInfo.description) {
+        newErrors['vehicleInfo.description'] = 'La descripción del NFT es requerida';
+      }
       if (!formData.vehicleInfo.placa) {
         newErrors['vehicleInfo.placa'] = 'La placa es requerida';
       }
@@ -247,8 +257,8 @@ export default function TokenizePage() {
     try {
       // Step 1: Prepare metadata JSON
       const metadata = {
-        name: `${formData.vehicleInfo.marca} ${formData.vehicleInfo.linea}`,
-        description: `Vehicle: ${formData.vehicleInfo.marca} ${formData.vehicleInfo.linea}, ${formData.vehicleInfo.modelo}`,
+        name: formData.vehicleInfo.title || `${formData.vehicleInfo.marca} ${formData.vehicleInfo.linea}`,
+        description: formData.vehicleInfo.description || `${formData.vehicleInfo.marca} ${formData.vehicleInfo.linea} ${formData.vehicleInfo.modelo}`,
         price: formData.nftSettings.price,
         paymentToken: formData.nftSettings.paymentToken,
         attributes: [
@@ -516,11 +526,48 @@ export default function TokenizePage() {
         
         {/* Step 1: Basic Vehicle Information */}
         {currentStep === 1 && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Información del Vehículo</h3>
-            <p className="text-sm text-blue-600 dark:text-blue-400 mb-4">
-              Esta información será almacenada en los metadatos del NFT.
-            </p>
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold mb-4">Información del NFT</h3>
+            
+            {/* NFT Title */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Título del NFT <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.vehicleInfo.title}
+                onChange={(e) => handleChange(e, 'vehicleInfo')}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Ej: Toyota Corolla 2022 - Edición Especial"
+              />
+              {errors['vehicleInfo.title'] && (
+                <p className="mt-1 text-sm text-red-500">{errors['vehicleInfo.title']}</p>
+              )}
+            </div>
+            
+            {/* NFT Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Descripción del NFT <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                rows={3}
+                value={formData.vehicleInfo.description}
+                onChange={(e) => handleChange(e, 'vehicleInfo')}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Describe las características y estado del vehículo"
+              />
+              {errors['vehicleInfo.description'] && (
+                <p className="mt-1 text-sm text-red-500">{errors['vehicleInfo.description']}</p>
+              )}
+            </div>
+            
+            <h3 className="text-xl font-bold mb-4 mt-6">Información del Vehículo</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

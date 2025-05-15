@@ -10,17 +10,20 @@ interface NFT {
   id: string;
   tokenId: string;
   title: string;
+  description: string;
   image: string;
   status: string;
   placa: string;
+  contractAddress: string;
+  tokenURI?: string;
   price?: string;
 }
 
 // For debugging - toggle to true to see mock data
 const USE_MOCK_DATA = false;
 
-// Contract Address from VehicleNFT_V2
-const CONTRACT_ADDRESS = CONTRACT_ADDRESSES.VehicleNFT_V2;
+// Contract Address from VehicleNFT_V2 - hardcoded to ensure correct address
+const CONTRACT_ADDRESS = '0x20AdEbac56B2b2d7FE7967fCec780363A070be3A';
 
 // Log contract address for debugging
 console.log('Using contract address:', CONTRACT_ADDRESS);
@@ -61,17 +64,23 @@ function getMockNFTs(): NFT[] {
       id: '1',
       tokenId: '1',
       title: 'Toyota Corolla 2022',
+      description: 'A well-maintained 2022 Toyota Corolla sedan with low mileage and all service records.',
       image: 'https://images.unsplash.com/photo-1638618164682-12b986ec2a75?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       status: 'Owned',
       placa: 'ABC123',
+      contractAddress: CONTRACT_ADDRESS,
+      tokenURI: 'ipfs://example1'
     },
     {
       id: '2',
       tokenId: '2',
       title: 'Chevrolet Camaro 2020',
-      image: 'https://gateway.pinata.cloud/ipfs/QmZ4vLGb5KWQeqC3qJxQgjuV8GV1YBDwgdU4AJth3HVdEz',
+      description: 'Powerful 2020 Chevrolet Camaro sports car with V8 engine and premium features.',
+      image: 'https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?q=80&w=2669&auto=format&fit=crop&ixlib=rb-4.1.0',
       status: 'Listed for Sale',
       placa: 'XYZ789',
+      contractAddress: CONTRACT_ADDRESS,
+      tokenURI: 'ipfs://example2',
       price: '2.8',
     }
   ];
@@ -123,15 +132,6 @@ export function useUserNFTs() {
         
         // Array to collect NFTs
         const nftsFound: NFT[] = [];
-        
-        // Alternative contract address formats for RPC calls
-        const contractAddressFormats = [
-          CONTRACT_ADDRESS,
-          CONTRACT_ADDRESS.toLowerCase(),
-          CONTRACT_ADDRESS.toString()
-        ];
-        
-        console.log('Contract address formats:', contractAddressFormats);
         
         // We'll check each token ID individually to avoid the complexity of batch calls
         // Start from 0 as some contracts start counting from 0
@@ -313,6 +313,9 @@ export function useUserNFTs() {
   // Process NFT metadata from URI
   async function processNFTMetadata(tokenId: number, uri: string): Promise<NFT> {
     try {
+      // Store original URI for reference
+      const originalUri = uri;
+      
       // Convert IPFS URI if needed
       let httpUri = uri;
       if (uri.startsWith('ipfs://')) {
@@ -391,19 +394,19 @@ export function useUserNFTs() {
           const imageCid = imageUrl.replace('ipfs://', '');
           
           try {
-            const gatewayUrl = `${gateway}${imageCid}`;
+            const gatewayImageUrl = `${gateway}${imageCid}`;
             // Verify the image URL works
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
             
-            const imgResponse = await fetch(gatewayUrl, { 
+            const imgResponse = await fetch(gatewayImageUrl, { 
               method: 'HEAD',
               signal: controller.signal
             });
             clearTimeout(timeoutId);
             
             if (imgResponse.ok) {
-              imageUrl = gatewayUrl;
+              imageUrl = gatewayImageUrl;
               break;
             }
           } catch (err) {
@@ -427,9 +430,12 @@ export function useUserNFTs() {
         id: tokenId.toString(),
         tokenId: tokenId.toString(),
         title: metadata.name || `Car #${tokenId}`,
+        description: metadata.description || `Vehicle with token ID ${tokenId}`,
         image: imageUrl,
         status: 'Owned',
-        placa: metadata.placa || metadata.licensePlate || metadata.attributes?.find((attr: NFTAttribute) => attr.trait_type === 'Placa')?.value?.toString() || ''
+        placa: metadata.placa || metadata.licensePlate || metadata.attributes?.find((attr: NFTAttribute) => attr.trait_type === 'Placa')?.value?.toString() || '',
+        contractAddress: CONTRACT_ADDRESS,
+        tokenURI: originalUri
       };
     } catch (error) {
       console.error(`Error fetching metadata for token ${tokenId}:`, error);
@@ -439,9 +445,12 @@ export function useUserNFTs() {
         id: tokenId.toString(),
         tokenId: tokenId.toString(),
         title: `Car #${tokenId}`,
+        description: `Vehicle token ID ${tokenId}`,
         image: 'https://images.unsplash.com/photo-1594502184342-2543a32f36f0?auto=format&fit=crop&q=80',
         status: 'Owned',
-        placa: ''
+        placa: '',
+        contractAddress: CONTRACT_ADDRESS,
+        tokenURI: uri
       };
     }
   }
