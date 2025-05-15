@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface NFTCardProps {
   title: string;
@@ -11,6 +12,7 @@ interface NFTCardProps {
   placa?: string;
   imageUrl?: string;
   onClick?: () => void;
+  href?: string;
 }
 
 export default function NFTCard({ 
@@ -20,7 +22,8 @@ export default function NFTCard({
   description,
   placa,
   imageUrl,
-  onClick
+  onClick,
+  href
 }: NFTCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -33,7 +36,11 @@ export default function NFTCard({
     `${contractAddress.substring(0, 6)}...${contractAddress.substring(contractAddress.length - 4)}` : 
     '';
 
-  return (
+  // Generate href if not provided
+  const detailsHref = href || `/cars/${tokenId}`;
+
+  // Card content to be wrapped with either Link or div
+  const CardContent = (
     <div 
       className={`relative rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${
         onClick ? 'cursor-pointer' : ''
@@ -85,13 +92,19 @@ export default function NFTCard({
         </div>
         
         <div className="flex justify-end mt-2">
-          {onClick && (
-            <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-              View Details
-            </button>
-          )}
+          <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+            View Details
+          </button>
         </div>
       </div>
     </div>
+  );
+
+  // If there's an onClick handler, don't wrap with Link (let the handler do its job)
+  // Otherwise wrap with Link for direct navigation
+  return onClick ? CardContent : (
+    <Link href={detailsHref}>
+      {CardContent}
+    </Link>
   );
 } 

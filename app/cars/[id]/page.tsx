@@ -173,7 +173,11 @@ export default function VehicleDetailsPage() {
     (!isLoading && (!nftDetails || error));
   
   // Get sample data for this ID
-  const sampleData = SAMPLE_VEHICLES[id as keyof typeof SAMPLE_VEHICLES] || 
+  // Normalize the ID - parse it to remove any non-numeric characters if needed
+  const normalizedId = id.replace(/[^0-9]/g, '');
+  
+  // Try to match by normalized ID, or fall back to sample data
+  const sampleData = SAMPLE_VEHICLES[normalizedId as keyof typeof SAMPLE_VEHICLES] || 
     SAMPLE_VEHICLES['1']; // Fallback to first sample if ID not found
   
   // The final vehicle data to display
@@ -184,15 +188,31 @@ export default function VehicleDetailsPage() {
     setIsMounted(true);
   }, []);
 
-  // Find the NFT that matches the ID from the URL
+  // Find the NFT that matches the ID from the URL - improved to handle different formats
   useEffect(() => {
     if (userNFTs && userNFTs.length > 0) {
-      const nft = userNFTs.find(nft => nft.id === params.id || nft.tokenId === params.id);
+      // Try to find by exact match first
+      let nft = userNFTs.find(nft => nft.id === id || nft.tokenId === id);
+      
+      // If not found, try with normalized ID (numbers only)
+      if (!nft && normalizedId) {
+        nft = userNFTs.find(nft => 
+          nft.id === normalizedId || 
+          nft.tokenId === normalizedId ||
+          nft.id.replace(/[^0-9]/g, '') === normalizedId ||
+          nft.tokenId.replace(/[^0-9]/g, '') === normalizedId
+        );
+      }
+      
       if (nft) {
         setCurrentNFT(nft);
+        console.log("Found matching NFT:", nft);
+      } else {
+        console.log("No matching NFT found for ID:", id, "Normalized ID:", normalizedId);
+        console.log("Available NFTs:", userNFTs);
       }
     }
-  }, [userNFTs, params.id]);
+  }, [userNFTs, id, normalizedId]);
 
   if (!isMounted) {
     return (

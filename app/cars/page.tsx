@@ -167,7 +167,7 @@ export default function CarsPage() {
                   imageUrl={car.image}
                   placa={car.placa}
                   contractAddress={car.contractAddress}
-                  onClick={() => handleCardClick(car.id)}
+                  href={`/cars/${car.tokenId}`}
                 />
               ))}
             </div>
@@ -230,7 +230,7 @@ export default function CarsPage() {
                 imageUrl={car.image}
                 placa={car.placa}
                 contractAddress={car.contractAddress}
-                onClick={() => handleCardClick(car.id)}
+                href={`/cars/${car.tokenId}`}
               />
             ))}
           </div>
