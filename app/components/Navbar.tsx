@@ -56,9 +56,6 @@ export default function Navbar() {
             <Link href="/collateralize" className={`${isActive('/collateralize')} hover:text-blue-600 transition-colors`}>
               Get Loans
             </Link>
-            <Link href="/marketplace" className={`${isActive('/marketplace')} hover:text-blue-600 transition-colors`}>
-              Marketplace
-            </Link>
             
             {/* Admin link - only visible to contract owner */}
             {isOwner && (

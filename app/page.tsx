@@ -11,12 +11,12 @@ export default function Home() {
           Welcome to <span className="text-blue-600">CarP2P</span>
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mb-10">
-          The first decentralized marketplace for vehicle ownership. Tokenize your car, 
+          The first decentralized platform for vehicle ownership. Tokenize your car, 
           trade it seamlessly, or use it as collateral for loans.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mb-16">
-          <Link href="/marketplace" className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-            Browse Marketplace
+          <Link href="/trading" className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+            Trading Platform
           </Link>
           <Link href="/cars" className="px-8 py-3 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border border-blue-600 font-medium rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors">
             Tokenize Your Car
@@ -42,8 +42,8 @@ export default function Home() {
             Buy and sell vehicles as NFTs. Transparent history, secure transactions, and instant transfers 
             of ownership without paperwork.
           </p>
-          <Link href="/marketplace" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
-            View Marketplace →
+          <Link href="/trading" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+            View Trading →
           </Link>
         </div>
 

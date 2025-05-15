@@ -100,7 +100,7 @@ export function SellNFTForm({ tokenId, tokenName, tokenImage, onSuccess }: SellN
       <div className="px-6 py-4 border-b">
         <h3 className="text-lg font-medium">Sell Your Vehicle</h3>
         <p className="text-sm text-gray-500">
-          List your vehicle NFT for sale on the CarP2P marketplace
+          List your vehicle NFT for sale on the CarP2P trading platform
         </p>
       </div>
       

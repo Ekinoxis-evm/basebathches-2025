@@ -272,7 +272,7 @@ export default function VehicleDetailsPage() {
   const handleSellSuccess = (escrowId: string) => {
     setIsSellDialogOpen(false);
     // Optionally: redirect to a page showing the escrow details
-    // router.push(`/cars/trading/${escrowId}`);
+    // router.push(`/trading`);
   };
 
   return (
