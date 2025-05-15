@@ -76,8 +76,18 @@ export default function CarsPage() {
   // Use client-side rendering to avoid hydration issues
   const [isMounted, setIsMounted] = useState(false);
   
-  // Add state to toggle between real and sample data
-  const [useSampleData, setUseSampleData] = useState(false);
+  // Add state to toggle between real and sample data - default to sample data
+  const [useSampleData, setUseSampleData] = useState(true);
+  
+  // Log debugging info
+  useEffect(() => {
+    console.log("🚗 Cars Page Debug Info:");
+    console.log("User NFTs from hook:", userNFTs);
+    console.log("isLoading:", isLoading);
+    console.log("error:", error);
+    console.log("useSampleData:", useSampleData);
+    console.log("userNFTs length:", userNFTs.length);
+  }, [userNFTs, isLoading, error, useSampleData]);
   
   // Determine which vehicles to display - use sample data if user chooses to 
   // or if there's an error and no cars are found
@@ -187,7 +197,10 @@ export default function CarsPage() {
               Tokenize Your First Vehicle
             </button>
             <button
-              onClick={toggleDataSource}
+              onClick={() => {
+                setUseSampleData(true);
+                console.log("Switched to sample data from empty state");
+              }}
               className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors"
             >
               View Sample Vehicles

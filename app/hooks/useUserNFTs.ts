@@ -20,7 +20,7 @@ interface NFT {
 }
 
 // For debugging - toggle to true to see mock data
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
 // Contract Address from VehicleNFT_V2 - hardcoded to ensure correct address
 const CONTRACT_ADDRESS = '0x20AdEbac56B2b2d7FE7967fCec780363A070be3A';
@@ -99,10 +99,21 @@ export function useUserNFTs() {
     functionName: 'totalMinted',
   });
 
+  // Debug the contract and connected address
+  useEffect(() => {
+    console.log("🔍 useUserNFTs debug info:");
+    console.log("Contract address:", CONTRACT_ADDRESS);
+    console.log("Connected address:", address);
+    console.log("Is connected:", isConnected);
+    console.log("Total supply:", totalSupply?.toString() || "not loaded yet");
+  }, [address, isConnected, totalSupply]);
+
   useEffect(() => {
     async function fetchNFTs() {
       if (!isConnected || !address) {
         setIsLoading(false);
+        // Initialize with mock data instead of empty array
+        setUserNFTs(getMockNFTs());
         return;
       }
 
