@@ -168,7 +168,7 @@ export function useVehicleNFTV2() {
 
   // Format OpenSea URL for the NFT
   const getOpenSeaUrl = (tokenId: string, contractAddress: string = CONTRACT_ADDRESSES.VehicleNFT_V2) => {
-    return `https://testnets.opensea.io/assets/base-sepolia/${contractAddress}/${tokenId}`;
+    return `https://testnets.opensea.io/assets/base_sepolia/${contractAddress}/${tokenId}`;
   };
 
   return { 

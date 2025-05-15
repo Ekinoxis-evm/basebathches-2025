@@ -33,12 +33,13 @@ export default function OpenSeaLink({
     : formatAddress(CONTRACT_ADDRESSES.VehicleNFT_V2 || '');
 
   // Format OpenSea URL - for testnets use testnets.opensea.io
-  const isTestnet = chainName === 'base-sepolia' || chainName === 'sepolia';
+  const isTestnet = chainName === 'base-sepolia' || chainName === 'base_sepolia' || chainName === 'sepolia';
   const domain = isTestnet ? 'testnets.opensea.io' : 'opensea.io';
   
-  // For testnets we need to use the format /assets/base-sepolia/[contract]/[id]
+  // For testnets we need to use the format /assets/base_sepolia/[contract]/[id]
+  // Note: OpenSea uses underscore in the URL (base_sepolia) not dash
   const path = isTestnet 
-    ? `assets/${chainName}/${contract}/${tokenId}` 
+    ? `assets/${chainName.replace('-', '_')}/${contract}/${tokenId}` 
     : `item/${chainName}/${contract}/${tokenId}`;
     
   const openseaUrl = `https://${domain}/${path}`;

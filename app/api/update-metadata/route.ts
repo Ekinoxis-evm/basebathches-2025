@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         originalUri: data.metadataUri,
         updatedUri: updatedMetadataUri,
         tokenId: data.tokenId,
-        openseaUrl: `https://testnets.opensea.io/assets/base-sepolia/${data.contractAddress || process.env.NFT_CONTRACT_ADDRESS}/${data.tokenId}`
+        openseaUrl: `https://testnets.opensea.io/assets/base_sepolia/${data.contractAddress || process.env.NFT_CONTRACT_ADDRESS}/${data.tokenId}`
       }, { status: 200 });
       
     } catch (fetchError) {

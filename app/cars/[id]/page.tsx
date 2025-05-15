@@ -356,7 +356,7 @@ export default function VehicleDetailsPage() {
               <div className="mt-2 md:mt-0 flex flex-col md:flex-row gap-3">
                 <OpenSeaLink 
                   tokenId={vehicleDetails.tokenId}
-                  chainName="base-sepolia"
+                  chainName="base_sepolia"
                   className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   View on OpenSea
@@ -442,7 +442,7 @@ export default function VehicleDetailsPage() {
                 
                 <OpenSeaLink 
                   tokenId={vehicleDetails.tokenId}
-                  chainName="base-sepolia"
+                  chainName="base_sepolia"
                   className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
                 >
                   View on OpenSea
